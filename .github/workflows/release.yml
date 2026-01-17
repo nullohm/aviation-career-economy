@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'build-*'
 
 jobs:
   build:
@@ -37,13 +37,22 @@ jobs:
         Copy-Item -Path "CHANGELOG.md" -Destination "./publish/CHANGELOG.md"
         Copy-Item -Path "LICENSE" -Destination "./publish/LICENSE"
 
+    - name: Extract build number
+      id: buildnum
+      run: |
+        $tag = "${{ github.ref_name }}"
+        $buildNum = $tag -replace 'build-', ''
+        echo "number=$buildNum" >> $env:GITHUB_OUTPUT
+        echo "Build number: $buildNum"
+
     - name: Create ZIP archive
-      run: Compress-Archive -Path ./publish/* -DestinationPath ACE-${{ github.ref_name }}-win-x64.zip
+      run: Compress-Archive -Path ./publish/* -DestinationPath ACE-Build-${{ steps.buildnum.outputs.number }}-win-x64.zip
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: ACE-${{ github.ref_name }}-win-x64.zip
+        name: Build ${{ steps.buildnum.outputs.number }}
+        files: ACE-Build-${{ steps.buildnum.outputs.number }}-win-x64.zip
         generate_release_notes: true
         draft: false
         prerelease: false
