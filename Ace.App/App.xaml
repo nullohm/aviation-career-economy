@@ -1,0 +1,27 @@
+<Application x:Class="Ace.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Ace.App.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/DarkTheme.xaml" />
+                <ResourceDictionary Source="Themes/Icons.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <converters:SizeToBrushConverter x:Key="SizeToBrushConverter" />
+            <converters:SizeToAircraftIconConverter x:Key="SizeToAircraftIconConverter" />
+            <converters:AircraftImageConverter x:Key="AircraftImageConverter" />
+            <converters:HasCustomImageConverter x:Key="HasCustomImageConverter" />
+            <converters:HasNoCustomImageConverter x:Key="HasNoCustomImageConverter" />
+            <converters:PercentToWidthConverter x:Key="PercentToWidthConverter" />
+            <converters:PercentToWidthMultiConverter x:Key="PercentToWidthMultiConverter" />
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
+
+

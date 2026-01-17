@@ -1,0 +1,17 @@
+<UserControl x:Class="Ace.App.Views.Menus.DashboardMenuView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="Auto" Width="Auto">
+    <Grid>
+        <TabControl>
+            <TabItem Header="Overview">
+                <ContentControl x:Name="DashboardContent" />
+            </TabItem>
+            <TabItem Header="Systems">
+                <StackPanel Margin="12">
+                    <TextBlock Foreground="LightGray">System health and indicators (placeholder)</TextBlock>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

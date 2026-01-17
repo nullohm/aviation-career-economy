@@ -1,0 +1,131 @@
+<Window x:Class="Ace.App.Views.Dialogs.EditAircraftSpecsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Edit Aircraft Specifications"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Foreground="{StaticResource ForegroundBrush}"
+        Width="516"
+        Height="566"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="32" CornerRadius="8" GlassFrameThickness="0" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Background="{StaticResource BgPrimary}"
+            BorderBrush="#50FFFFFF"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="8">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="20" Opacity="0.6" ShadowDepth="4"/>
+        </Border.Effect>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="{StaticResource CardBg}" CornerRadius="8,8,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock x:Name="TitleText" Text="Edit Aircraft Specifications" FontSize="13" Style="{StaticResource HeadingText}"
+                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+
+                <Button Grid.Column="1" Name="BtnClose" Width="36" Height="24" Content="{StaticResource IconClose}"
+                        Click="BtnClose_Click" ToolTip="Close"
+                        Style="{StaticResource WindowCloseButtonStyle}"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,8,0"/>
+            </Grid>
+        </Border>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="20">
+                <TextBlock x:Name="AircraftName" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,20"
+                           Foreground="{StaticResource AccentBrush}"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,15">
+                        <TextBlock Text="Max Passengers" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtMaxPassengers" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,15">
+                        <TextBlock Text="Max Cargo (kg)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtMaxCargo" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,15">
+                        <TextBlock Text="Cruise Speed (kts)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtCruiseSpeed" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,0,0,15">
+                        <TextBlock Text="Max Range (NM)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtMaxRange" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,10,15">
+                        <TextBlock Text="Fuel Capacity (gal)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtFuelCapacity" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Grid.Column="1" Margin="10,0,0,15">
+                        <TextBlock Text="Fuel Burn (gal/h)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtFuelBurn" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,10,15">
+                        <TextBlock Text="Service Ceiling (ft)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtServiceCeiling" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Grid.Column="1" Margin="10,0,0,15">
+                        <TextBlock Text="Operating Cost (€/h)" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtOperatingCost" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4" Grid.Column="0" Margin="0,0,10,15">
+                        <TextBlock Text="Flight Hours" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12" Margin="0,0,0,4"/>
+                        <TextBox x:Name="TxtFlightHours" Height="36" FontSize="14" Padding="8,6"/>
+                    </StackPanel>
+                </Grid>
+
+                <Border Background="{StaticResource CardBg}" CornerRadius="6" Padding="12" Margin="0,10,0,0">
+                    <TextBlock Text="Changes will be saved to this aircraft. Operating cost is automatically calculated from fuel burn if left at 0."
+                               TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2" Background="{StaticResource CardBg}" Padding="20" CornerRadius="0,0,8,8">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnCancel" Content="Cancel" Width="100" Height="36" Click="BtnCancel_Click" Margin="0,0,10,0"/>
+                <Button x:Name="BtnSave" Content="Save" Width="100" Height="36" Click="BtnSave_Click"
+                        Style="{StaticResource SuccessButtonStyle}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+    </Border>
+</Window>

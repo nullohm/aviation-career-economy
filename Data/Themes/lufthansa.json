@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Lufthansa",
+    "displayName": "Lufthansa",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Deep blue with golden yellow accents inspired by Lufthansa"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF0A1420",
+    "bgSecondary": "#FF0E1A2A",
+    "cardBg": "#FF142438",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFF9BA00",
+    "accentSecondary": "#FF0A1D3D",
+    "accentGradientStart": "#FFF9BA00",
+    "accentGradientEnd": "#FFCF9B00",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F7FA",
+    "subtleForeground": "#FF9CADC0",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF1E2A40",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFF9BA00",
+    "danger": "#FFEF4444",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF6366F1",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFF9BA00",
+    "epauletteBackground": "#FF142438",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AF9BA00",
+    "glassBorder": "#33F9BA00",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF1E2A40",
+    "navSelected": "#FF142438"
+  }
+}

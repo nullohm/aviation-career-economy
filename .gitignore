@@ -1,0 +1,48 @@
+## Ignore Visual Studio temporary files, build results, and user-specific files
+.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.ide
+*.ide/
+
+# Rider
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+
+# macOS
+.DS_Store
+
+# Logs
+Logs/*
+!Logs/.gitkeep
+
+# Savegames - exclude user data, keep default template
+Savegames/*.db
+Savegames/*.db-shm
+Savegames/*.db-wal
+Savegames/Backups/
+!Savegames/.gitkeep
+
+# Publish output
+publish/
+test-publish/
+*.zip
+
+# Auto-generated context file
+ACE_Context_Ultimate.txt
+
+# Claude Code
+.claude/
+
+# Database files
+ace.db
+ace_backup_*.db

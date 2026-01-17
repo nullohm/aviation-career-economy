@@ -1,0 +1,761 @@
+<UserControl x:Class="Ace.App.Views.Core.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="600">
+    <UserControl.Resources>
+        <Style TargetType="ToolTip">
+            <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="MaxWidth" Value="350"/>
+            <Setter Property="ContentTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="SettingsExpander" TargetType="Expander">
+            <Setter Property="Background" Value="{DynamicResource CardBg}"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="IsExpanded" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6">
+                            <StackPanel>
+                                <ToggleButton x:Name="HeaderSite"
+                                              IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                              Background="Transparent"
+                                              BorderThickness="0"
+                                              Cursor="Hand"
+                                              HorizontalContentAlignment="Left">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="{TemplateBinding Background}" Padding="12,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ContentPresenter Grid.Column="0" ContentSource="Content"/>
+                                                    <Path x:Name="Arrow" Grid.Column="1"
+                                                          Data="M 0 0 L 6 6 L 12 0"
+                                                          Stroke="{DynamicResource SubtleForegroundBrush}"
+                                                          StrokeThickness="2"
+                                                          VerticalAlignment="Center"
+                                                          Margin="8,0,0,0"
+                                                          RenderTransformOrigin="0.5,0.5">
+                                                        <Path.RenderTransform>
+                                                            <RotateTransform Angle="0"/>
+                                                        </Path.RenderTransform>
+                                                    </Path>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Arrow" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="180"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                    <ContentPresenter ContentSource="Header"/>
+                                </ToggleButton>
+                                <ContentPresenter x:Name="ExpandSite" Visibility="Collapsed" Margin="12,0,12,12"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CategoryHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+        </Style>
+        <Style x:Key="SubHeader" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,12,0,8"/>
+        </Style>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="12">
+        <TextBlock FontSize="20" Foreground="{DynamicResource ForegroundBrush}" Text="Settings" />
+
+        <!-- APPEARANCE -->
+        <Expander Style="{StaticResource SettingsExpander}" IsExpanded="True">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Appearance"/>
+            </Expander.Header>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Theme:" VerticalAlignment="Center"/>
+                    <ComboBox Name="CmbTheme" Width="200" Height="28" SelectionChanged="CmbTheme_SelectionChanged"
+                              DisplayMemberPath="DisplayName"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4,8,4,4">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="" VerticalAlignment="Center"/>
+                    <Button Name="BtnEditTheme" Content="Edit Theme" Height="28" Padding="12,4" Margin="0,0,5,0"
+                            Click="BtnEditTheme_Click"
+                            ToolTip="Open the current theme's JSON file in your default text editor"
+                            Style="{StaticResource SecondaryButtonStyle}"/>
+                    <Button Name="BtnCreateTheme" Content="New Theme" Height="28" Padding="12,4" Margin="0,0,5,0"
+                            Click="BtnCreateTheme_Click"
+                            ToolTip="Create a new custom theme based on the current theme"
+                            Style="{StaticResource SecondaryButtonStyle}"/>
+                    <Button Name="BtnReloadTheme" Content="Reload" Height="28" Padding="12,4"
+                            Click="BtnReloadTheme_Click"
+                            ToolTip="Reload theme from file (useful after editing)"
+                            Style="{StaticResource SecondaryButtonStyle}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Map tile style: Auto follows app theme, Light for bright maps, Dark for dark maps">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Map Style:" VerticalAlignment="Center"/>
+                    <ComboBox Name="CmbMapStyle" Width="200" Height="28" SelectionChanged="CmbMapStyle_SelectionChanged">
+                        <ComboBoxItem Content="Auto"/>
+                        <ComboBoxItem Content="Light"/>
+                        <ComboBoxItem Content="Dark"/>
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- MAP & NAVIGATION DATA -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Map &amp; Navigation Data"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="Airspace Display" Margin="0,0,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Display airspace boundaries (CTR, TMA, Class A-E) on the flight planning map.">
+                    <CheckBox Name="ChkShowAirspaceOverlay"
+                              Content="Show airspace overlay"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkShowAirspaceOverlay_Changed"
+                              Unchecked="ChkShowAirspaceOverlay_Changed"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Reload airspace data from configured source.">
+                    <Button Name="BtnRefreshAirspaces" Content="Refresh Airspace Data" MinWidth="180" Height="28"
+                            Click="BtnRefreshAirspaces_Click"/>
+                    <TextBlock Name="TxtAirspaceStatus" Margin="12,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource SubtleForegroundBrush}"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Little Navmap Database"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Path to Little Navmap database folder. Contains airport, runway, and airspace data. Leave empty to auto-detect from standard location.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Database Path:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtLittleNavmapPath" Width="300" Height="28" VerticalContentAlignment="Center" Padding="4" IsReadOnly="True"
+                             ToolTip="Click Browse to select the Little Navmap database folder"/>
+                    <Button Name="BtnBrowseLnmPath" Content="Browse..." Width="90" Height="28" Margin="8,0,0,0"
+                            Click="BtnBrowseLnmPath_Click"/>
+                    <Button Name="BtnClearLnmPath" Content="Clear" Width="70" Height="28" Margin="8,0,0,0"
+                            Click="BtnClearLnmPath_Click"
+                            ToolTip="Clear path to use auto-detection"/>
+                </StackPanel>
+                <TextBlock Name="TxtLnmDbStatus" Margin="184,4,0,0"
+                           Foreground="{DynamicResource SubtleForegroundBrush}" FontSize="11"/>
+            </StackPanel>
+        </Expander>
+
+        <!-- FLIGHT PLANNING -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Flight Planning"/>
+            </Expander.Header>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="If enabled, all aircraft can be used for flight plans regardless of status. If disabled (default), only 'Available' aircraft can be selected.">
+                    <CheckBox Name="ChkAllowAllAircraftForFlightPlan"
+                              Content="Allow all aircraft for flight plans"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkAllowAllAircraftForFlightPlan_Changed"
+                              Unchecked="ChkAllowAllAircraftForFlightPlan_Changed"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- ECONOMY -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Economy"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="Revenue Rates by Aircraft Size" Margin="0,0,0,8"
+                           ToolTip="Revenue per passenger per nautical mile. Smaller aircraft have higher rates due to premium charter pricing, while larger aircraft benefit from economies of scale."/>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="240" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Small (1-4 PAX):" VerticalAlignment="Center"
+                               ToolTip="Cessna 172, Piper PA-28, Diamond DA40. Premium rates for private charters."/>
+                    <TextBox Name="TxtRateSmall" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Revenue rate in €/PAX/NM for small aircraft (1-4 passengers). Example: 0.20 means a 3-passenger flight over 100 NM earns €60."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="240" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Medium (5-19 PAX):" VerticalAlignment="Center"
+                               ToolTip="Citation, King Air, Pilatus PC-12. Business jet and turboprop charter."/>
+                    <TextBox Name="TxtRateMedium" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Revenue rate in €/PAX/NM for medium aircraft (5-19 passengers). Business aviation segment."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="240" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Med-Large (20-100 PAX):" VerticalAlignment="Center"
+                               ToolTip="Embraer E190, CRJ, ATR 72. Regional airline operations."/>
+                    <TextBox Name="TxtRateMediumLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Revenue rate in €/PAX/NM for medium-large aircraft (20-100 passengers). Regional airline segment."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="240" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Large (101-350 PAX):" VerticalAlignment="Center"
+                               ToolTip="A320, B737, A330. Mainline airline operations."/>
+                    <TextBox Name="TxtRateLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Revenue rate in €/PAX/NM for large aircraft (101-350 passengers). Mainline airline segment with competitive pricing."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="240" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Very Large (>350 PAX):" VerticalAlignment="Center"
+                               ToolTip="A380, B747, Beluga. Ultra-high capacity operations."/>
+                    <TextBox Name="TxtRateVeryLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Revenue rate in €/PAX/NM for very large aircraft (>350 passengers). Lowest per-passenger rate due to maximum economies of scale."/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Aircraft Load Factor"
+                           ToolTip="Average utilization of aircraft capacity for revenue calculation. 100% means all seats/cargo space are used. Lower values simulate realistic load factors."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Percentage of passenger capacity that is used for revenue calculation. Example: 80 means aircraft fly with 80% of seats filled on average.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Passenger Load (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtPassengerLoadFactor" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Percentage of cargo capacity that is used for revenue calculation. Example: 70 means aircraft fly with 70% of cargo space filled on average.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Cargo Load (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtCargoLoadFactor" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Fuel &amp; Operating Costs"
+                           ToolTip="Operating costs that are calculated daily based on flight hours for each aircraft with an assigned pilot."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Price per gallon of aviation fuel. Daily fuel cost = Aircraft fuel burn (gal/h) × Flight hours per day × This price. Typical Avgas: €5-7, Jet-A: €4-6.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Fuel Price per Gallon (€):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtFuelPrice" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="FBO overhead cost as percentage of operating costs. Added to fuel, maintenance, depreciation, insurance, and crew costs. Typical FBO margins: 4-6%. Example: 0.05 = 5% of base costs.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="FBO Cost Factor (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtFBOCostFactor" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Player Flight Bonus"
+                           ToolTip="Rewards for flying yourself in MSFS instead of using passive income from assigned pilots."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Bonus percentage added to flight profit when you fly yourself. Example: 100 = profit is doubled (100% bonus). Set to 0 to disable bonus.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtPlayerFlightBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="FBO Network Bonus"
+                           ToolTip="Additional bonus for flights between your own FBOs. Rewards building a connected network."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Bonus percentage for flights where both departure and destination airports have your FBOs. Example: 20 = 20% additional revenue.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Network Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtNetworkBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- FBO -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="FBO"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="FBO Rent (€/month)" Margin="0,0,0,8"
+                           ToolTip="Monthly base rent for your Fixed Base Operations at different airport types. This is a fixed monthly cost regardless of operations."/>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Local FBO:" VerticalAlignment="Center"
+                               ToolTip="Small grass strips and regional airfields with limited traffic."/>
+                    <TextBox Name="TxtFBORentLocal" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Monthly rent for FBOs at local/small airports. Lower traffic but cheaper operations."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Regional FBO:" VerticalAlignment="Center"
+                               ToolTip="Medium-sized airports serving regional routes."/>
+                    <TextBox Name="TxtFBORentRegional" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Monthly rent for FBOs at regional airports. Balance between cost and passenger demand."/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="International FBO:" VerticalAlignment="Center"
+                               ToolTip="Major international hubs with high passenger demand."/>
+                    <TextBox Name="TxtFBORentInternational" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"
+                             ToolTip="Monthly rent for FBOs at international airports. Highest cost but access to premium routes."/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Terminal Costs (€/month)"
+                           ToolTip="Monthly costs for passenger terminals at your FBOs. Larger terminals can handle more passengers but cost more to operate."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="For small aircraft (1-4 PAX). Basic facilities for GA operations like waiting area and small check-in counter.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Small Terminal:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTerminalCostSmall" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="For medium aircraft (5-19 PAX). Business aviation lounge with comfortable seating, refreshments, and dedicated check-in.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Medium Terminal:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTerminalCostMedium" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="For medium-large aircraft (20-100 PAX). Regional airline terminal with gates, baggage handling, and security screening.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Medium-Large Terminal:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTerminalCostMediumLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="For large aircraft (101-350 PAX). Full-service airline terminal with multiple gates, jet bridges, shops, and restaurants.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Large Terminal:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTerminalCostLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="For very large aircraft (>350 PAX). Major hub terminal with extensive facilities, lounges, duty-free shopping, and high passenger capacity.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Very Large Terminal:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTerminalCostVeryLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Service Costs (€/month)"
+                           ToolTip="Monthly operating costs for optional services at your FBOs. Costs vary by terminal size."/>
+                <Grid Margin="4,0,4,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="70"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="28"/>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <!-- Header Row -->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="Small" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="Medium" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="Med-L" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="Large" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="11"/>
+                    <TextBlock Grid.Row="0" Grid.Column="5" Text="V-Large" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="11"/>
+                    <!-- Refueling Row -->
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Refueling:" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center"
+                               ToolTip="On-site fuel availability. Required to refuel aircraft at this FBO."/>
+                    <TextBox Name="TxtServiceCostRefueling" Grid.Row="1" Grid.Column="1" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostRefuelingMedium" Grid.Row="1" Grid.Column="2" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostRefuelingMediumLarge" Grid.Row="1" Grid.Column="3" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostRefuelingLarge" Grid.Row="1" Grid.Column="4" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostRefuelingVeryLarge" Grid.Row="1" Grid.Column="5" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <!-- Hangar Row -->
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Hangar:" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center"
+                               ToolTip="Aircraft storage and protection from weather."/>
+                    <TextBox Name="TxtServiceCostHangar" Grid.Row="2" Grid.Column="1" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostHangarMedium" Grid.Row="2" Grid.Column="2" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostHangarMediumLarge" Grid.Row="2" Grid.Column="3" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostHangarLarge" Grid.Row="2" Grid.Column="4" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostHangarVeryLarge" Grid.Row="2" Grid.Column="5" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <!-- Catering Row -->
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Catering:" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center"
+                               ToolTip="In-flight food and beverage preparation and loading."/>
+                    <TextBox Name="TxtServiceCostCatering" Grid.Row="3" Grid.Column="1" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostCateringMedium" Grid.Row="3" Grid.Column="2" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostCateringMediumLarge" Grid.Row="3" Grid.Column="3" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostCateringLarge" Grid.Row="3" Grid.Column="4" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostCateringVeryLarge" Grid.Row="3" Grid.Column="5" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <!-- Ground Handling Row -->
+                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Ground Handling:" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center"
+                               ToolTip="Baggage handling, aircraft pushback, towing, and ground support equipment."/>
+                    <TextBox Name="TxtServiceCostGroundHandling" Grid.Row="4" Grid.Column="1" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostGroundHandlingMedium" Grid.Row="4" Grid.Column="2" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostGroundHandlingMediumLarge" Grid.Row="4" Grid.Column="3" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostGroundHandlingLarge" Grid.Row="4" Grid.Column="4" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostGroundHandlingVeryLarge" Grid.Row="4" Grid.Column="5" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <!-- De-Icing Row -->
+                    <TextBlock Grid.Row="5" Grid.Column="0" Text="De-Icing:" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center"
+                               ToolTip="Aircraft de-icing and anti-icing capability for winter operations."/>
+                    <TextBox Name="TxtServiceCostDeIcing" Grid.Row="5" Grid.Column="1" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostDeIcingMedium" Grid.Row="5" Grid.Column="2" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostDeIcingMediumLarge" Grid.Row="5" Grid.Column="3" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostDeIcingLarge" Grid.Row="5" Grid.Column="4" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                    <TextBox Name="TxtServiceCostDeIcingVeryLarge" Grid.Row="5" Grid.Column="5" Width="60" Height="26" VerticalContentAlignment="Center" Padding="4" HorizontalAlignment="Center"/>
+                </Grid>
+                <StackPanel Orientation="Horizontal" Margin="4,8,4,4"
+                            ToolTip="Percentage of monthly service costs added as bonus to flight revenue. Services at the departure FBO generate this bonus per flight.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Service Bonus Factor (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtServiceBonusFactor" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Scheduled Routes"
+                           ToolTip="Settings for scheduled routes between your FBOs. Outgoing routes are limited by FBO type."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Maximum outgoing routes for Local FBOs. Incoming routes are unlimited.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Local FBO Outgoing Slots:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRouteSlotLimitLocal" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Maximum outgoing routes for Regional FBOs. Incoming routes are unlimited.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Regional FBO Outgoing Slots:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRouteSlotLimitRegional" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Maximum outgoing routes for International FBOs. Incoming routes are unlimited.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Int'l FBO Outgoing Slots:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRouteSlotLimitInternational" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Maximum routes allowed between any two FBOs (in both directions combined). Set to 1 for single route per pair.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Routes per FBO Pair:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRoutesPerFBOPairLimit" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- AIRCRAFT -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Aircraft"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="Maintenance Costs per Hour (€/h)" Margin="0,0,0,8"
+                           ToolTip="Routine maintenance reserve per flight hour by aircraft size. Covers oil, consumables, inspections, and minor repairs. These are recurring costs applied to every flight hour."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Small aircraft (1-4 PAX): Cessna 172, Piper PA-28. Simple piston engines with low maintenance needs.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Small (1-4 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintenanceCostSmall" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Medium aircraft (5-19 PAX): King Air, Citation, Pilatus PC-12. Turboprops and light jets with more complex systems.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Medium (5-19 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintenanceCostMedium" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Medium-Large aircraft (20-100 PAX): Embraer E190, CRJ, ATR 72. Regional jets with jet engines and advanced avionics.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Med-Large (20-100 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintenanceCostMediumLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Large aircraft (101-350 PAX): A320, B737, A330. Mainline narrowbody/widebody with high-bypass turbofans.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Large (101-350 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintenanceCostLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Very Large aircraft (>350 PAX): A380, B747. Superjumbos with complex systems and highest maintenance requirements.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Very Large (>350 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintenanceCostVeryLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Maintenance Checks (€)"
+                           ToolTip="Scheduled maintenance check costs. Small aircraft use 50h/100h/Annual checks. Airliners use A/B/C/D checks. These are one-time costs when a check is due."/>
+                <TextBlock Foreground="{DynamicResource SubtleForegroundBrush}" FontSize="11" Text="Light Aircraft" Margin="4,4,4,2"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Light aircraft: Every 50 flight hours. Oil change, filter inspection, basic systems check. Downtime: 1-2 days.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="50-Hour Check:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheck50Hour" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Light aircraft: Every 100 flight hours. Comprehensive inspection of all systems, controls, and structure. Downtime: 2-4 days.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="100-Hour Check:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheck100Hour" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Light aircraft: Every 12 months. Complete airworthiness inspection. Required regardless of flight hours. Downtime: 3-7 days.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Annual Inspection:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheckAnnual" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <TextBlock Foreground="{DynamicResource SubtleForegroundBrush}" FontSize="11" Text="Airliners" Margin="4,12,4,2"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Airliners: Every 400-600 flight hours. Basic inspection, lubrication, fluid checks. Usually done overnight. Downtime: 1-2 days.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="A-Check:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheckACheck" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Airliners: Every 6-8 months. More detailed inspection of systems and components. Downtime: 1-3 days.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="B-Check:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheckBCheck" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Airliners: Every 20-24 months. Heavy maintenance with extensive structural inspection. Requires hangar. Downtime: 1-2 weeks.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="C-Check (Heavy):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheckCCheck" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Airliners: Every 6-10 years. Complete overhaul - aircraft stripped to bare frame. Major expense but extends aircraft life. Downtime: 4-8 weeks.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="D-Check (Overhaul):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtMaintCheckDCheck" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Insurance &amp; Depreciation"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Annual hull and liability insurance as percentage of aircraft value. Example: 0.75 = 0.75% per year. A €100,000 aircraft costs €750/year or ~€2/day in insurance.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Insurance Rate (% of value/year):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtInsurance" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Annual percentage of aircraft value lost to depreciation. Applied daily. Example: 0.05 = 5% per year. A €100,000 aircraft loses €5,000 in value per year (~€13.70/day). Affects aircraft resale value.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Annual Depreciation Rate (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtDepreciation" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- PILOTS -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Pilots"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="Pilot Settings" Margin="0,0,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Monthly base salary paid to all pilots. Total salary = Base + (Base × Rank Bonus). Higher ranks cost more but experienced pilots are more valuable.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Base Salary (€/month):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtPilotBaseSalary" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Average daily flight hours per pilot for passive income calculation. EASA limits: max 900h/90 days, ~2000h/year = ~5.5h/day average. Affects revenue, fuel costs, maintenance, and flight hour accumulation.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Flight Hours per Day:" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtPilotFlightHoursPerDay" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Rank System - Hour Thresholds"
+                           ToolTip="Flight hour requirements for each pilot rank. Pilots automatically advance when they reach the threshold. Higher ranks earn salary bonuses."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Starting rank for new pilots. Usually 0 hours - all pilots start here.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Junior (hours):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankJuniorHours" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Experienced First Officer level. Typically 500+ hours.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Senior (hours):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankSeniorHours" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Pilot in Command qualified. Typically 1500+ hours (ATP minimum in many regions).">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Captain (hours):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankCaptainHours" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Highly experienced Captain. Typically 3000+ hours.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Senior Captain (hours):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankSeniorCaptainHours" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Top rank - flight operations leadership. Typically 5000+ hours.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Chief Pilot (hours):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankChiefPilotHours" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Type Rating Costs (€)" Margin="0,0,0,8"
+                           ToolTip="Cost to acquire a type rating for aircraft of each size class. Pilots need type ratings to fly specific aircraft types."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Small aircraft (1-4 PAX): Cessna 172, Piper PA-28. Basic GA aircraft, lower training costs.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Small (1-4 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTypeRatingCostSmall" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Medium aircraft (5-19 PAX): King Air, Citation, Pilatus PC-12. Turboprops and light jets require more training.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Medium (5-19 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTypeRatingCostMedium" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Medium-Large aircraft (20-100 PAX): Embraer E190, CRJ, ATR 72. Regional jets with complex systems.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Med-Large (20-100 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTypeRatingCostMediumLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Large aircraft (101-350 PAX): A320, B737, A330. Mainline narrowbody/widebody requiring full type rating.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Large (101-350 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTypeRatingCostLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Very Large aircraft (>350 PAX): A380, B747. Most expensive type ratings due to complexity.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Very Large (>350 PAX):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtTypeRatingCostVeryLarge" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Rank System - Salary Bonuses"
+                           ToolTip="Percentage bonus added to base salary for each rank. Example: Base €5000 + 30% Captain bonus = €6500/month total salary."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Usually 0 (no bonus). Junior pilots earn base salary only.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Junior Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankJuniorBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Example: 0.15 = 15% bonus. €5000 base becomes €5750/month.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Senior Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankSeniorBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Example: 0.30 = 30% bonus. €5000 base becomes €6500/month.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Captain Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankCaptainBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Example: 0.50 = 50% bonus. €5000 base becomes €7500/month.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Senior Captain Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankSeniorCaptainBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Example: 0.75 = 75% bonus. €5000 base becomes €8750/month.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Chief Pilot Bonus (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtRankChiefPilotBonus" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- SOUND -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Sound"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="Master Settings"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Master switch for all sound effects.">
+                    <CheckBox Name="ChkSoundEnabled"
+                              Content="Enable sound effects"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundEnabled_Changed"
+                              Unchecked="ChkSoundEnabled_Changed"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Volume level for sound effects (0-100%)">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Volume:" VerticalAlignment="Center"/>
+                    <Slider Name="SliderVolume" Width="150" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="False"
+                            VerticalAlignment="Center" ValueChanged="SliderVolume_ValueChanged"/>
+                    <TextBlock Name="TxtVolume" Width="40" Foreground="{DynamicResource SubtleForegroundBrush}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource SubHeader}" Text="Individual Sound Events"/>
+
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Play sound when a flight is completed successfully.">
+                    <CheckBox Name="ChkSoundFlightCompleted"
+                              Content="Flight Completed"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundFlightCompleted_Changed"
+                              Unchecked="ChkSoundFlightCompleted_Changed"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Play sound when an achievement is unlocked.">
+                    <CheckBox Name="ChkSoundAchievement"
+                              Content="Achievement Unlocked"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundAchievement_Changed"
+                              Unchecked="ChkSoundAchievement_Changed"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Play sound when approaching top of descent.">
+                    <CheckBox Name="ChkSoundTopOfDescent"
+                              Content="Top of Descent Alert"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundTopOfDescent_Changed"
+                              Unchecked="ChkSoundTopOfDescent_Changed"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Play sound for warning messages.">
+                    <CheckBox Name="ChkSoundWarning"
+                              Content="Warnings"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundWarning_Changed"
+                              Unchecked="ChkSoundWarning_Changed"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Play sound for notification messages.">
+                    <CheckBox Name="ChkSoundNotification"
+                              Content="Notifications"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundNotification_Changed"
+                              Unchecked="ChkSoundNotification_Changed"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Play sound for button clicks (experimental).">
+                    <CheckBox Name="ChkSoundButtonClick"
+                              Content="Button Clicks"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkSoundButtonClick_Changed"
+                              Unchecked="ChkSoundButtonClick_Changed"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- ACHIEVEMENTS -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Achievements"/>
+            </Expander.Header>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Achievement reward percentage. 100 = default, 200 = double rewards, 50 = half rewards, 0 = no rewards.">
+                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Reward Multiplier (%):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtAchievementRewardMultiplier" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <!-- DEVELOPER -->
+        <Expander Style="{StaticResource SettingsExpander}">
+            <Expander.Header>
+                <TextBlock Style="{StaticResource CategoryHeader}" Text="Developer"/>
+            </Expander.Header>
+            <StackPanel>
+                <TextBlock Style="{StaticResource SubHeader}" Text="Debug Tools" Margin="0,0,0,8"
+                           ToolTip="Tools for testing and debugging."/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="Debug tool: Add or remove money from your account for testing.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Funds (€):" VerticalAlignment="Center"/>
+                    <TextBox Name="TxtAddFunds" Width="100" Height="28" VerticalContentAlignment="Center" Padding="4" Text="10000"/>
+                    <Button Name="BtnAddFunds" Content="Add" MinWidth="60" Height="28" Padding="16,0" Margin="8,0,0,0" Click="BtnAddFunds_Click"/>
+                    <Button Name="BtnRemoveFunds" Content="Remove" MinWidth="60" Height="28" Padding="16,0" Margin="8,0,0,0" Click="BtnRemoveFunds_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4,12,4,4"
+                            ToolTip="Simulate multiple days of passive earnings. Sets the last earnings date back and processes daily earnings for all assigned aircraft.">
+                    <TextBlock Width="180" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Test Daily Earnings:" VerticalAlignment="Center"/>
+                    <Button Name="BtnTestEarnings1Day" Content="Simulate 1 Day" MinWidth="110" Height="28" Padding="12,0" Margin="0,0,8,0" Click="BtnTestEarnings_Click" Tag="1"/>
+                    <Button Name="BtnTestEarnings3Days" Content="Simulate 3 Days" MinWidth="110" Height="28" Padding="12,0" Margin="0,0,8,0" Click="BtnTestEarnings_Click" Tag="3"/>
+                    <Button Name="BtnTestEarnings7Days" Content="Simulate 7 Days" MinWidth="110" Height="28" Padding="12,0" Click="BtnTestEarnings_Click" Tag="7"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+    </StackPanel>
+    </ScrollViewer>
+</UserControl>

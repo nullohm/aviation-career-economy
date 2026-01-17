@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "BritishAirways",
+    "displayName": "British Airways",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Classic blue and red inspired by British Airways"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF0D1420",
+    "bgSecondary": "#FF141E2E",
+    "cardBg": "#FF1C283C",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FF0035AD",
+    "accentSecondary": "#FFCC3333",
+    "accentGradientStart": "#FF075AAA",
+    "accentGradientEnd": "#FF0035AD",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F7FA",
+    "subtleForeground": "#FF9CADC0",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF2A3850",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFBBF24",
+    "danger": "#FFCC3333",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF6366F1",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF1C283C",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1A0035AD",
+    "glassBorder": "#330035AD",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF2A3850",
+    "navSelected": "#FF1C283C"
+  }
+}

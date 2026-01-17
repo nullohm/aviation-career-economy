@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Delta",
+    "displayName": "Delta Air Lines",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Deep crimson and regal blue inspired by Delta Air Lines"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF0F1218",
+    "bgSecondary": "#FF181D26",
+    "cardBg": "#FF212836",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFC8102E",
+    "accentSecondary": "#FF003A70",
+    "accentGradientStart": "#FFC8102E",
+    "accentGradientEnd": "#FF862633",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F5F5",
+    "subtleForeground": "#FF9DA3AE",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF343C4D",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFBBF24",
+    "danger": "#FFC8102E",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF862633",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF212836",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AC8102E",
+    "glassBorder": "#33C8102E",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF343C4D",
+    "navSelected": "#FF212836"
+  }
+}

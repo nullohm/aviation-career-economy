@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "EasyJet",
+    "displayName": "EasyJet",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Vibrant orange theme inspired by EasyJet"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF1A1612",
+    "bgSecondary": "#FF24201A",
+    "cardBg": "#FF2E2A22",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFFF6600",
+    "accentSecondary": "#FFFF7D1C",
+    "accentGradientStart": "#FFFF7D1C",
+    "accentGradientEnd": "#FFFF6600",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF8F7F5",
+    "subtleForeground": "#FFB8B0A0",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF3D3830",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFF6600",
+    "danger": "#FFEF4444",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF8B5CF6",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFFF6600",
+    "epauletteBackground": "#FF2E2A22",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AFF6600",
+    "glassBorder": "#33FF6600",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF3D3830",
+    "navSelected": "#FF2E2A22"
+  }
+}

@@ -1,0 +1,468 @@
+<UserControl x:Class="Ace.App.Views.Finance.BankView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:converters="clr-namespace:Ace.App.Converters"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <converters:AmountToColorConverter x:Key="AmountToColorConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Title -->
+                <TextBlock Grid.Column="0" Text="Finance"
+                           Style="{StaticResource HeadingText}"
+                           FontSize="20"
+                           VerticalAlignment="Center"/>
+
+                <!-- Stats Badge -->
+                <Border Grid.Column="2"
+                        Background="{StaticResource BgSecondary}"
+                        CornerRadius="4"
+                        Padding="12,6"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="TxtTotalAssets"
+                                   Text="Total: €0"
+                                   FontWeight="Bold"
+                                   Foreground="#FFD700"/>
+                        <TextBlock Text=" = " Foreground="{StaticResource SubtleForegroundBrush}" FontSize="11"/>
+                        <TextBlock x:Name="TxtBalance"
+                                   Text="Cash: €0"
+                                   FontWeight="SemiBold"
+                                   FontSize="11"
+                                   Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text=" + " Foreground="{StaticResource SubtleForegroundBrush}" FontSize="11"/>
+                        <TextBlock x:Name="TxtAircraftValue"
+                                   Text="Fleet: €0"
+                                   FontWeight="SemiBold"
+                                   FontSize="11"
+                                   Foreground="#64B5F6"/>
+                        <TextBlock Text=" • " Foreground="{StaticResource SubtleForegroundBrush}"/>
+                        <TextBlock x:Name="TxtLoans"
+                                   Text="Loans: €0"
+                                   FontSize="11"
+                                   Foreground="#FFCC6060"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Content: Two-Column Layout -->
+        <Grid Grid.Row="1" Background="{StaticResource BgPrimary}" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Column: Monthly Costs -->
+            <Border Grid.Column="0"
+                    Background="{StaticResource CardBg}"
+                    CornerRadius="8"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.3" ShadowDepth="2"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{StaticResource BgSecondary}"
+                            CornerRadius="8,8,0,0"
+                            Padding="12,10"
+                            Cursor="Hand"
+                            MouseLeftButtonDown="CostsHeader_MouseDown">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TxtCostsExpandIcon" Text="▼" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Column="1" x:Name="TxtCostsHeader" Text="Monthly Costs (0)"
+                                       FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Costs Liste -->
+                    <ScrollViewer Grid.Row="1"
+                                  x:Name="CostsScrollViewer"
+                                  VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <!-- FBO Costs Section -->
+                            <Border Background="{StaticResource BgSecondary}" Padding="12,8">
+                                <TextBlock Text="FBO Costs" FontWeight="SemiBold" FontSize="12" Foreground="#FFFFAA00"/>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding RentedFBOs}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="Transparent"
+                                                Padding="12,10"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource BgSecondary}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding DisplayText}"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="13"
+                                                               Foreground="{StaticResource ForegroundBrush}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                        <Border CornerRadius="3" Padding="6,2" Margin="0,0,8,0">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Background" Value="#4CAF50"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding TypeText}" Value="International">
+                                                                            <Setter Property="Background" Value="#E91E63"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding TypeText}" Value="Regional">
+                                                                            <Setter Property="Background" Value="#2196F3"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock Text="{Binding TypeText}" FontSize="10" Foreground="White" FontWeight="SemiBold"/>
+                                                        </Border>
+                                                        <TextBlock Text="{Binding TerminalSizeText}" FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding TotalCostText}"
+                                                           FontSize="15"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#FFFFAA00"
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Pilot Salaries Section -->
+                            <Border Background="{StaticResource BgSecondary}" Padding="12,8">
+                                <TextBlock Text="Pilot Salaries" FontWeight="SemiBold" FontSize="12" Foreground="#FF60A0CC"/>
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding EmployedPilots}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="Transparent"
+                                                Padding="12,10"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource BgSecondary}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontWeight="SemiBold"
+                                                               FontSize="13"
+                                                               Foreground="{StaticResource ForegroundBrush}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                        <Border Background="#9C27B0" CornerRadius="3" Padding="6,2" Margin="0,0,8,0">
+                                                            <TextBlock Text="{Binding RankText}" FontSize="10" Foreground="White" FontWeight="SemiBold"/>
+                                                        </Border>
+                                                        <TextBlock Text="{Binding FlightHoursText}" FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding SalaryText}"
+                                                           FontSize="15"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#FF60A0CC"
+                                                           VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Summary -->
+                            <Border Background="{StaticResource BgSecondary}" Padding="12,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Total Monthly" FontWeight="SemiBold" FontSize="13"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock x:Name="TxtHintFBO" FontSize="13" FontWeight="SemiBold" Foreground="#FFFFAA00"/>
+                                        <TextBlock Text=" + " FontSize="13" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                        <TextBlock x:Name="TxtHintPilots" FontSize="13" FontWeight="SemiBold" Foreground="#FF60A0CC"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Right Column: Transactions + Loans -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Recent Transactions -->
+                <Border Grid.Row="0"
+                        Background="{StaticResource CardBg}"
+                        CornerRadius="8"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.3" ShadowDepth="2"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0"
+                                Background="{StaticResource BgSecondary}"
+                                CornerRadius="8,8,0,0"
+                                Padding="12,10">
+                            <TextBlock Text="Recent Transactions"
+                                       FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- Transactions Liste -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding RecentTransactions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="Transparent"
+                                                Padding="12,10"
+                                                Cursor="Hand"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Tag="{Binding}"
+                                                MouseLeftButtonUp="Transaction_Click">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource BgSecondary}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Icon -->
+                                                <TextBlock Grid.Column="0" FontSize="20" VerticalAlignment="Center" Margin="0,0,12,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text" Value="💸"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Type}" Value="Income">
+                                                                    <Setter Property="Text" Value="💰"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+
+                                                <!-- Description and Date -->
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{StaticResource ForegroundBrush}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <TextBlock Text="{Binding Date, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                                                               FontSize="10"
+                                                               Foreground="{StaticResource SubtleForegroundBrush}"
+                                                               Margin="0,2,0,0"/>
+                                                </StackPanel>
+
+                                                <!-- Amount -->
+                                                <TextBlock Grid.Column="2"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           VerticalAlignment="Center"
+                                                           Margin="12,0,0,0"
+                                                           Text="{Binding Amount, StringFormat='{}{0:+€#,##0;-€#,##0;€0}'}"
+                                                           Foreground="{Binding Amount, Converter={StaticResource AmountToColorConverter}}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Active Loans -->
+                <Border Grid.Row="2"
+                        Background="{StaticResource CardBg}"
+                        CornerRadius="8"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        MaxHeight="250">
+                    <Border.Effect>
+                        <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.3" ShadowDepth="2"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0"
+                                Background="{StaticResource BgSecondary}"
+                                CornerRadius="8,8,0,0"
+                                Padding="12,10">
+                            <TextBlock x:Name="TxtLoansHeader" Text="Active Loans (0)"
+                                       FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- Loans Liste -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding ActiveLoans}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="Transparent"
+                                                Padding="12,10"
+                                                BorderBrush="{StaticResource BorderBrush}"
+                                                BorderThickness="0,0,0,1">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource BgSecondary}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}"
+                                                               Text="{Binding DateText}"/>
+                                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                                        <TextBlock Text="Amount: " FontSize="12" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding AmountText}" FontSize="12" FontWeight="SemiBold"/>
+                                                        <TextBlock Text=" → " FontSize="12" Foreground="{StaticResource SubtleForegroundBrush}" Margin="8,0"/>
+                                                        <TextBlock Text="{Binding RepaymentText}" FontSize="12" FontWeight="SemiBold" Foreground="#FFCC6060"/>
+                                                        <TextBlock Text=" (" FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}" Margin="4,0,0,0"/>
+                                                        <TextBlock Text="{Binding InterestText}" FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                        <TextBlock Text=")" FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <Button Grid.Column="1"
+                                                        Content="Repay"
+                                                        MinWidth="70"
+                                                        Height="32"
+                                                        VerticalAlignment="Center"
+                                                        Click="RepayLoan_Click"
+                                                        Tag="{Binding}"
+                                                        Style="{StaticResource SuccessButtonStyle}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <!-- Take Loan Section -->
+                        <Border Grid.Row="2"
+                                Background="{StaticResource BgSecondary}"
+                                CornerRadius="0,0,8,8"
+                                Padding="12,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Loan Input -->
+                                <Grid Grid.Column="0" ClipToBounds="True">
+                                    <TextBox x:Name="TxtLoanAmount"
+                                             Text="{Binding LoanAmount, UpdateSourceTrigger=PropertyChanged}"
+                                             Height="32"
+                                             VerticalContentAlignment="Center"
+                                             TextChanged="TxtLoanAmount_TextChanged"/>
+                                    <TextBlock x:Name="TxtLoanHint"
+                                               Text="Loan amount..."
+                                               Foreground="{StaticResource SubtleForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Left"
+                                               Margin="9,0,0,0"
+                                               IsHitTestVisible="False"/>
+                                </Grid>
+
+                                <!-- Take Loan Button -->
+                                <Button Grid.Column="2" x:Name="BtnTakeLoan"
+                                        Content="Take Loan"
+                                        Click="TakeLoan_Click"
+                                        Height="32"
+                                        MinWidth="90"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource SuccessButtonStyle}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

@@ -1,0 +1,51 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Run tests
+      run: dotnet test --no-restore --verbosity normal
+
+    - name: Publish application
+      run: dotnet publish Ace.App/Ace.App.csproj -c Release -r win-x64 --self-contained true -o ./publish
+
+    - name: Copy data folders
+      run: |
+        Copy-Item -Path "Data" -Destination "./publish/Data" -Recurse
+        New-Item -Path "./publish/Savegames" -ItemType Directory -Force
+        New-Item -Path "./publish/Logs" -ItemType Directory -Force
+        Copy-Item -Path "README.md" -Destination "./publish/README.md"
+        Copy-Item -Path "MANUAL.md" -Destination "./publish/MANUAL.md"
+        Copy-Item -Path "CHANGELOG.md" -Destination "./publish/CHANGELOG.md"
+        Copy-Item -Path "LICENSE" -Destination "./publish/LICENSE"
+
+    - name: Create ZIP archive
+      run: Compress-Archive -Path ./publish/* -DestinationPath ACE-${{ github.ref_name }}-win-x64.zip
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ACE-${{ github.ref_name }}-win-x64.zip
+        generate_release_notes: true
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

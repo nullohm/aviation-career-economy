@@ -1,0 +1,597 @@
+<UserControl x:Class="Ace.App.Views.Aircraft.HangarView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="1200">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Toolbar -->
+        <Border Grid.Row="0" Background="{StaticResource CardBg}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="16,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Title -->
+                <TextBlock Grid.Column="0" Text="Hangar"
+                           Style="{StaticResource HeadingText}"
+                           FontSize="20"
+                           VerticalAlignment="Center"/>
+
+                <!-- Status Filter -->
+                <ComboBox Grid.Column="2" x:Name="CmbStatusFilter"
+                          Width="140"
+                          VerticalAlignment="Center"
+                          SelectionChanged="CmbStatusFilter_SelectionChanged">
+                    <ComboBoxItem Content="All" IsSelected="True"/>
+                    <ComboBoxItem Content="Available"/>
+                    <ComboBoxItem Content="InFlight"/>
+                    <ComboBoxItem Content="Maintenance"/>
+                    <ComboBoxItem Content="Grounded"/>
+                    <ComboBoxItem Content="Stationed"/>
+                </ComboBox>
+
+                <!-- Search -->
+                <Grid Grid.Column="4" Width="250">
+                    <TextBox x:Name="TxtFilter"
+                             Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                             Height="32"
+                             VerticalContentAlignment="Center"
+                             Padding="10,4"
+                             TextChanged="TxtFilter_TextChanged"/>
+                    <TextBlock x:Name="TxtFilterHint"
+                               Text="Search registration, type..."
+                               Foreground="{StaticResource SubtleForegroundBrush}"
+                               VerticalAlignment="Center"
+                               Margin="12,0,0,0"
+                               IsHitTestVisible="False"/>
+                </Grid>
+
+                <!-- Stats Badge -->
+                <Border Grid.Column="6"
+                        Background="{StaticResource BgSecondary}"
+                        CornerRadius="4"
+                        Padding="12,6"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock x:Name="TxtAircraftCount"
+                                   Text="0 Aircraft"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock Text=" • " Foreground="{StaticResource SubtleForegroundBrush}"/>
+                        <TextBlock x:Name="TxtFleetValue"
+                                   Text="€0"
+                                   Foreground="{StaticResource SubtleForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- Content: Two-Column Layout -->
+        <Grid Grid.Row="1" Background="{StaticResource BgPrimary}" Margin="16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="480"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Column: Aircraft List -->
+            <Border Grid.Column="0"
+                    Background="{StaticResource CardBg}"
+                    CornerRadius="8"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.3" ShadowDepth="2"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{StaticResource BgSecondary}"
+                            CornerRadius="8,8,0,0"
+                            Padding="12,10"
+                            Cursor="Hand"
+                            MouseLeftButtonDown="AircraftListHeader_MouseDown">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="TxtExpandIcon" Text="▼" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                            <TextBlock Grid.Column="1" x:Name="TxtAircraftListHeader" Text="Your Aircraft (0)"
+                                       FontWeight="SemiBold" FontSize="14" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Aircraft Liste -->
+                    <ScrollViewer Grid.Row="1"
+                                  x:Name="AircraftListScrollViewer"
+                                  VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="AircraftListItems" ItemsSource="{Binding FilteredAircraft}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent"
+                                            Padding="12,10"
+                                            Cursor="Hand"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            MouseLeftButtonUp="OnAircraftListItemClick">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="{StaticResource BgSecondary}"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Aircraft Icon/Image -->
+                                            <Border Grid.Column="0"
+                                                    Width="48" Height="48"
+                                                    Background="{StaticResource BgSecondary}"
+                                                    CornerRadius="6"
+                                                    Margin="0,0,12,0"
+                                                    VerticalAlignment="Center">
+                                                <Grid>
+                                                    <Image Stretch="UniformToFill"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center">
+                                                        <Image.Source>
+                                                            <MultiBinding Converter="{StaticResource AircraftImageConverter}">
+                                                                <Binding Path="CustomImagePath"/>
+                                                                <Binding Path="SizeCategory"/>
+                                                            </MultiBinding>
+                                                        </Image.Source>
+                                                        <Image.Visibility>
+                                                            <MultiBinding Converter="{StaticResource HasCustomImageConverter}">
+                                                                <Binding Path="CustomImagePath"/>
+                                                                <Binding Path="SizeCategory"/>
+                                                            </MultiBinding>
+                                                        </Image.Visibility>
+                                                    </Image>
+                                                    <Path Data="{Binding SizeCategory, Converter={StaticResource SizeToAircraftIconConverter}}"
+                                                          Fill="{Binding SizeCategory, Converter={StaticResource SizeToBrushConverter}}"
+                                                          Stretch="Uniform"
+                                                          Width="28" Height="28"
+                                                          HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center">
+                                                        <Path.Visibility>
+                                                            <MultiBinding Converter="{StaticResource HasNoCustomImageConverter}">
+                                                                <Binding Path="CustomImagePath"/>
+                                                                <Binding Path="SizeCategory"/>
+                                                            </MultiBinding>
+                                                        </Path.Visibility>
+                                                    </Path>
+                                                </Grid>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="1">
+                                                <!-- Registration + Status Badge -->
+                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                    <TextBlock Text="{Binding Registration}"
+                                                               FontWeight="Bold"
+                                                               FontSize="15"
+                                                               Foreground="{StaticResource AccentBrush}"
+                                                               Margin="0,0,10,0"/>
+                                                    <Border Background="{Binding StatusColor}" CornerRadius="3" Padding="6,2">
+                                                        <TextBlock Text="{Binding Status}" FontSize="10" Foreground="White"/>
+                                                    </Border>
+                                                    <Border Background="{Binding MaintenanceWarningColor}"
+                                                            CornerRadius="3"
+                                                            Padding="6,2"
+                                                            Margin="6,0,0,0"
+                                                            Visibility="{Binding ShowMaintenanceWarning, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock Text="{Binding MaintenanceWarningText}"
+                                                                   FontSize="10"
+                                                                   Foreground="White"
+                                                                   FontWeight="SemiBold"/>
+                                                    </Border>
+                                                    <Border Background="{StaticResource SuccessBrush}"
+                                                            CornerRadius="3"
+                                                            Padding="6,2"
+                                                            Margin="6,0,0,0"
+                                                            Visibility="{Binding HasAssignedPilot, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock Text="{Binding AssignedPilotName}"
+                                                                   FontSize="10"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                    <Border Background="{StaticResource AccentBrush}"
+                                                            CornerRadius="3"
+                                                            Padding="6,2"
+                                                            Margin="6,0,0,0"
+                                                            Visibility="{Binding HasAssignedRoute, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            ToolTip="Assigned to scheduled route">
+                                                        <TextBlock Text="{Binding AssignedRouteDisplay}"
+                                                                   FontSize="10"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </StackPanel>
+
+                                                <!-- Type -->
+                                                <TextBlock Text="{Binding TypeVariant}"
+                                                           FontSize="13"
+                                                           Foreground="{StaticResource ForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Margin="0,0,0,2"/>
+
+                                                <!-- Location + Flight Hours -->
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding HomeBase}"
+                                                               FontSize="12"
+                                                               Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                    <TextBlock Text=" • "
+                                                               FontSize="12"
+                                                               Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding FlightHoursText}"
+                                                               FontSize="12"
+                                                               Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <!-- Value -->
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding ValueText}"
+                                                       FontSize="14"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{StaticResource AccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+
+            <!-- Right Column: Aircraft Details -->
+            <Border Grid.Column="2"
+                    x:Name="AircraftDetailsPanel"
+                    Background="{StaticResource CardBg}"
+                    CornerRadius="8"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1">
+                <Border.Effect>
+                    <DropShadowEffect Color="Black" BlurRadius="15" Opacity="0.3" ShadowDepth="2"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{StaticResource BgSecondary}"
+                            CornerRadius="8,8,0,0"
+                            Padding="16,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Select Hint (visible when no aircraft selected) -->
+                            <TextBlock x:Name="TxtSelectHint"
+                                       Text="Select an aircraft"
+                                       FontSize="14"
+                                       Foreground="{StaticResource SubtleForegroundBrush}"
+                                       VerticalAlignment="Center"
+                                       Visibility="Visible"/>
+
+                            <!-- Header Content (visible when aircraft selected) -->
+                            <StackPanel x:Name="HeaderContent" Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                    <TextBlock x:Name="TxtDetailRegistration"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource AccentBrush}"
+                                               Margin="0,0,12,0"/>
+                                    <Border x:Name="DetailStatusBadge" CornerRadius="4" Padding="8,3" VerticalAlignment="Center">
+                                        <TextBlock x:Name="TxtDetailStatus" FontSize="11" Foreground="White" FontWeight="SemiBold"/>
+                                    </Border>
+                                    <Border x:Name="DetailMaintenanceBadge"
+                                            CornerRadius="4"
+                                            Padding="8,3"
+                                            Margin="6,0,0,0"
+                                            VerticalAlignment="Center"
+                                            Visibility="Collapsed">
+                                        <TextBlock x:Name="TxtDetailMaintenance" FontSize="11" Foreground="White" FontWeight="SemiBold"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock x:Name="TxtDetailType"
+                                           FontSize="14"
+                                           Foreground="{StaticResource SubtleForegroundBrush}"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Details Content -->
+                    <ScrollViewer Grid.Row="1" x:Name="DetailsContent" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+                        <StackPanel>
+                            <!-- Aircraft Image -->
+                            <Border Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <Grid Height="180">
+                                    <Border Background="{StaticResource BgSecondary}" CornerRadius="8">
+                                        <Grid>
+                                            <Image x:Name="DetailAircraftImage"
+                                                   Stretch="Uniform"
+                                                   Margin="16"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                            <Path x:Name="DetailAircraftIcon"
+                                                  Stretch="Uniform"
+                                                  Width="80" Height="80"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Visibility="Collapsed"/>
+                                        </Grid>
+                                    </Border>
+                                    <Button x:Name="BtnEditImage" Content="📷"
+                                            HorizontalAlignment="Right" VerticalAlignment="Top"
+                                            Width="28" Height="28" Padding="0" Margin="0,-4,-4,0"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            FontSize="12" Click="EditImageButton_Click"
+                                            ToolTip="Change Image"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Specifications (Market-Style) -->
+                            <Border Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,10">
+                                        <TextBlock Text="Specifications" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnEditSpecs" Content="Edit" Click="EditSpecsButton_Click"
+                                                HorizontalAlignment="Right" Height="26" Padding="12,0"
+                                                Style="{StaticResource SecondaryButtonStyle}" FontSize="11"/>
+                                    </Grid>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Row 0: Size + Location -->
+                                        <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
+                                            <Grid>
+                                                <TextBlock Text="Size" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailSize" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Location" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailLocation" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 1: Passengers + Cargo -->
+                                        <Border Grid.Row="1" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
+                                            <Grid>
+                                                <TextBlock Text="Passengers" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailPassengers" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="1" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Cargo" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailCargo" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 2: Speed + Range -->
+                                        <Border Grid.Row="2" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
+                                            <Grid>
+                                                <TextBlock Text="Cruise Speed" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailSpeed" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="2" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Max Range" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailRange" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 3: Fuel Capacity + Fuel Burn -->
+                                        <Border Grid.Row="3" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
+                                            <Grid>
+                                                <TextBlock Text="Fuel Capacity" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailFuel" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="3" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Fuel Burn" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailFuelBurn" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 4: Flight Hours + Value -->
+                                        <Border Grid.Row="4" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
+                                            <Grid>
+                                                <TextBlock Text="Flight Hours" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailFlightHours" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="4" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Value" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailValue" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" Foreground="{StaticResource AccentBrush}"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 5: Service Ceiling -->
+                                        <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Service Ceiling" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailServiceCeiling" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 6: Operating Cost -->
+                                        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6">
+                                            <Grid>
+                                                <TextBlock Text="Hourly Operating Cost" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailOperatingCost" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" Foreground="{StaticResource AccentBrush}"/>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Maintenance -->
+                            <Border Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,10">
+                                        <TextBlock Text="Maintenance" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                        <Button x:Name="BtnMaintenance" Content="Schedule" Click="MaintenanceButton_Click"
+                                                HorizontalAlignment="Right" Height="26" Padding="12,0"
+                                                Style="{StaticResource WarningButtonStyle}" FontSize="11"/>
+                                    </Grid>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
+                                            <Grid>
+                                                <TextBlock Text="Hours Since Maint." FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailHoursSinceMaint" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Last Maintenance" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailLastMaint" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <Border x:Name="MaintenanceCompletionRow" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Visibility="Collapsed">
+                                            <Grid>
+                                                <TextBlock Text="Maintenance Complete" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailMaintComplete" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- FBO Assignment -->
+                            <Border Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+                                <StackPanel>
+                                    <TextBlock Text="FBO Assignment" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,10"/>
+
+                                    <Border Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,0,8">
+                                        <Grid>
+                                            <TextBlock Text="Current Assignment" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                            <TextBlock x:Name="TxtDetailFBOAssignment" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <ComboBox x:Name="CmbFBOSelection" Grid.Column="0" Height="28" FontSize="11"
+                                                  DisplayMemberPath="DisplayName" SelectionChanged="CmbFBOSelection_SelectionChanged"/>
+
+                                        <Button x:Name="BtnAssignFBO" Grid.Column="2" Content="Assign" Click="AssignFBOButton_Click"
+                                                Height="28" Padding="12,0" Style="{StaticResource PrimaryButtonStyle}" FontSize="11" IsEnabled="False"/>
+
+                                        <Button x:Name="BtnRemoveFBO" Grid.Column="4" Content="Remove" Click="RemoveFBOButton_Click"
+                                                Height="28" Padding="12,0" Style="{StaticResource SecondaryButtonStyle}" FontSize="11" IsEnabled="False"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Assigned Info (Pilot) -->
+                            <Border x:Name="AssignedInfoSection" Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Visibility="Collapsed">
+                                <StackPanel>
+                                    <TextBlock Text="Assigned Pilot" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
+                                    <StackPanel x:Name="PilotAssignmentRow" Orientation="Horizontal" Visibility="Collapsed">
+                                        <TextBlock x:Name="TxtDetailPilot" FontSize="12" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Actions -->
+                            <Border Padding="16,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="8"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Button Grid.Column="0"
+                                            Content="Sell Aircraft"
+                                            Click="SellButton_Click"
+                                            Height="36"
+                                            Style="{StaticResource SuccessButtonStyle}"/>
+
+                                    <Button Grid.Column="2"
+                                            Content="Delete"
+                                            Click="DeleteButton_Click"
+                                            Height="36"
+                                            Style="{StaticResource DangerButtonStyle}"/>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

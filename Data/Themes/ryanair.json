@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Ryanair",
+    "displayName": "Ryanair",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Bold blue and yellow inspired by Ryanair"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF0A1628",
+    "bgSecondary": "#FF102038",
+    "cardBg": "#FF162848",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFF1C933",
+    "accentSecondary": "#FF073590",
+    "accentGradientStart": "#FFF1C933",
+    "accentGradientEnd": "#FFDDB520",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F7FA",
+    "subtleForeground": "#FF9CADC0",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF1E3A5F",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFF1C933",
+    "danger": "#FFEF4444",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF6366F1",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFF1C933",
+    "epauletteBackground": "#FF162848",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AF1C933",
+    "glassBorder": "#33F1C933",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF1E3A5F",
+    "navSelected": "#FF162848"
+  }
+}

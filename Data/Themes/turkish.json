@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Turkish",
+    "displayName": "Turkish Airlines",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Bold red and cobalt blue inspired by Turkish Airlines"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF1A1418",
+    "bgSecondary": "#FF241C22",
+    "cardBg": "#FF2E2630",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFEF2E1F",
+    "accentSecondary": "#FF0053A5",
+    "accentGradientStart": "#FFEF2E1F",
+    "accentGradientEnd": "#FFC41E18",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF8F5F5",
+    "subtleForeground": "#FFB8A8A8",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF3D3038",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFBBF24",
+    "danger": "#FFEF2E1F",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF8B5CF6",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF2E2630",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AEF2E1F",
+    "glassBorder": "#33EF2E1F",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF3D3038",
+    "navSelected": "#FF2E2630"
+  }
+}

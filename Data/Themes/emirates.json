@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Emirates",
+    "displayName": "Emirates",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Rich red and gold inspired by Emirates airline"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF1A1215",
+    "bgSecondary": "#FF241A1E",
+    "cardBg": "#FF2E2228",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFD71A21",
+    "accentSecondary": "#FFD4AF37",
+    "accentGradientStart": "#FFD71A21",
+    "accentGradientEnd": "#FFA8151A",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF8F5F5",
+    "subtleForeground": "#FFB8A8A8",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF3D2E32",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFD4AF37",
+    "danger": "#FFD71A21",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF8B5CF6",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF2E2228",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AD71A21",
+    "glassBorder": "#33D71A21",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF3D2E32",
+    "navSelected": "#FF2E2228"
+  }
+}

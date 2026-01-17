@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Dark",
+    "displayName": "Dark Theme",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Default dark theme with blue accents"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF0D1117",
+    "bgSecondary": "#FF161B22",
+    "cardBg": "#FF21262D",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FF58A6FF",
+    "accentSecondary": "#FF238636",
+    "accentGradientStart": "#FF58A6FF",
+    "accentGradientEnd": "#FF1F6FEB",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF0F6FC",
+    "subtleForeground": "#FF8B949E",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF30363D",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF238636",
+    "successGradientStart": "#FF2EA043",
+    "successGradientEnd": "#FF238636",
+    "warning": "#FFD29922",
+    "danger": "#FFF85149",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF8957E5",
+    "cyanAccent": "#FF79C0FF",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF1A1A1A",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AFFFFFF",
+    "glassBorder": "#33FFFFFF",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF30363D",
+    "navSelected": "#FF21262D"
+  }
+}

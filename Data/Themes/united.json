@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "United",
+    "displayName": "United Airlines",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Classic blue theme inspired by United Airlines"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF0D1520",
+    "bgSecondary": "#FF142030",
+    "cardBg": "#FF1C2B40",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FF005DAA",
+    "accentSecondary": "#FF0078D4",
+    "accentGradientStart": "#FF0078D4",
+    "accentGradientEnd": "#FF005DAA",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F7FA",
+    "subtleForeground": "#FF9CADC0",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF2D4055",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFBBF24",
+    "danger": "#FFEF4444",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF6366F1",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF1C2B40",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1A005DAA",
+    "glassBorder": "#33005DAA",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF2D4055",
+    "navSelected": "#FF1C2B40"
+  }
+}

@@ -1,0 +1,130 @@
+<Window x:Class="Ace.App.Views.Dialogs.RouteDetailsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Route Details"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Foreground="{StaticResource ForegroundBrush}"
+        Width="466"
+        SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="32" CornerRadius="8" GlassFrameThickness="0" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Background="{StaticResource BgPrimary}"
+            BorderBrush="#50FFFFFF"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="8">
+        <Border.Effect>
+            <DropShadowEffect Color="Black" BlurRadius="20" Opacity="0.6" ShadowDepth="4"/>
+        </Border.Effect>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title Bar -->
+        <Border Grid.Row="0" Background="{StaticResource CardBg}" CornerRadius="8,8,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Route Details" FontSize="13" Style="{StaticResource HeadingText}"
+                           VerticalAlignment="Center" Margin="12,0,0,0"/>
+
+                <Button Grid.Column="1" Name="BtnClose" Width="36" Height="24" Content="{StaticResource IconClose}"
+                        Click="BtnClose_Click" ToolTip="Close"
+                        Style="{StaticResource WindowCloseButtonStyle}"
+                        shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,8,0"/>
+            </Grid>
+        </Border>
+
+        <!-- Content -->
+        <StackPanel Grid.Row="1" Margin="20">
+            <!-- Route Display -->
+            <Border Background="{StaticResource BgSecondary}" CornerRadius="6" Padding="16" Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                        <TextBlock x:Name="TxtOriginICAO" FontWeight="Bold" FontSize="24"
+                                   Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtOriginName" FontSize="11"
+                                   Foreground="{StaticResource SubtleForegroundBrush}"
+                                   HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="140"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="1" Text="↔" FontSize="20"
+                               Foreground="{StaticResource SubtleForegroundBrush}"
+                               VerticalAlignment="Center" Margin="16,0"/>
+
+                    <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                        <TextBlock x:Name="TxtDestICAO" FontWeight="Bold" FontSize="24"
+                                   Foreground="{StaticResource AccentBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock x:Name="TxtDestName" FontSize="11"
+                                   Foreground="{StaticResource SubtleForegroundBrush}"
+                                   HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="140"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Current Assignment -->
+            <TextBlock Text="Current Assignment" FontSize="12" Foreground="{StaticResource SubtleForegroundBrush}" Margin="0,0,0,8"/>
+            <Border Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="12" Margin="0,0,0,16">
+                <StackPanel>
+                    <StackPanel x:Name="PanelAssigned">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Aircraft:" Foreground="{StaticResource SubtleForegroundBrush}" Width="60"/>
+                            <TextBlock x:Name="TxtAircraftReg" FontWeight="SemiBold"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Pilot:" Foreground="{StaticResource SubtleForegroundBrush}" Width="60"/>
+                            <TextBlock x:Name="TxtPilotName" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock x:Name="TxtNoAircraft" Text="No aircraft assigned" FontStyle="Italic"
+                               Foreground="{StaticResource SubtleForegroundBrush}" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Change Aircraft -->
+            <TextBlock Text="Change Aircraft" FontSize="12" Foreground="{StaticResource SubtleForegroundBrush}" Margin="0,0,0,4"/>
+            <ComboBox x:Name="CmbAircraft" Height="36" Margin="0,0,0,4" DisplayMemberPath="DisplayName"/>
+            <TextBlock x:Name="TxtAircraftInfo" FontSize="11" Foreground="{StaticResource SubtleForegroundBrush}" Margin="0,0,0,8"/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                <Button x:Name="BtnAssign" Content="Assign" Height="28" Padding="12,4"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Click="BtnAssign_Click" Margin="0,0,8,0"/>
+                <Button x:Name="BtnUnassign" Content="Unassign" Height="28" Padding="12,4"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Click="BtnUnassign_Click"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="20,0,20,20">
+            <Button x:Name="BtnDelete" Content="Delete Route" Width="120" Height="32"
+                    Style="{StaticResource DangerButtonStyle}"
+                    Click="BtnDelete_Click" Margin="0,0,10,0"/>
+            <Button Content="Close" Width="80" Height="32"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Click="BtnClose_Click"/>
+        </StackPanel>
+    </Grid>
+    </Border>
+</Window>

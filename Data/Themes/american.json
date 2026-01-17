@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "American",
+    "displayName": "American Airlines",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Slate blue and sky blue with red accents inspired by American Airlines"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF1A2028",
+    "bgSecondary": "#FF232A34",
+    "cardBg": "#FF2D3542",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FF13AFEB",
+    "accentSecondary": "#FF45596A",
+    "accentGradientStart": "#FF13AFEB",
+    "accentGradientEnd": "#FF0D8BC4",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F7FA",
+    "subtleForeground": "#FF9CA8B8",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF3D4655",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFBBF24",
+    "danger": "#FFDE1B23",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF6366F1",
+    "cyanAccent": "#FF13AFEB",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF2D3542",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1A13AFEB",
+    "glassBorder": "#3313AFEB",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF3D4655",
+    "navSelected": "#FF2D3542"
+  }
+}

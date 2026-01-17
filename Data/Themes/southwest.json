@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Southwest",
+    "displayName": "Southwest Airlines",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Bold blue, warm red and sunrise yellow inspired by Southwest Airlines"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF1A2332",
+    "bgSecondary": "#FF223044",
+    "cardBg": "#FF2A3B52",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FF304CB2",
+    "accentSecondary": "#FFD5152E",
+    "accentGradientStart": "#FF304CB2",
+    "accentGradientEnd": "#FF1E3A8A",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF5F7FA",
+    "subtleForeground": "#FF9CA8B8",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF3D4E63",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFFBF27",
+    "danger": "#FFD5152E",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF6366F1",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFFFBF27",
+    "epauletteBackground": "#FF2A3B52",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1A304CB2",
+    "glassBorder": "#33304CB2",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF3D4E63",
+    "navSelected": "#FF2A3B52"
+  }
+}

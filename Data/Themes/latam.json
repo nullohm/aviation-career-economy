@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "LATAM",
+    "displayName": "LATAM Airlines",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Indigo and coral theme inspired by LATAM Airlines"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF14101E",
+    "bgSecondary": "#FF1C1828",
+    "cardBg": "#FF262236",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FF2C048C",
+    "accentSecondary": "#FFEB1453",
+    "accentGradientStart": "#FF3D0ABF",
+    "accentGradientEnd": "#FF2C048C",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF8F5FA",
+    "subtleForeground": "#FFB0A8C0",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF362E48",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF22C55E",
+    "successGradientStart": "#FF4ADE80",
+    "successGradientEnd": "#FF22C55E",
+    "warning": "#FFFBBF24",
+    "danger": "#FFEB1453",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF2C048C",
+    "cyanAccent": "#FF38BDF8",
+    "gold": "#FFD4AF37",
+    "epauletteBackground": "#FF262236",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1A2C048C",
+    "glassBorder": "#332C048C",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF362E48",
+    "navSelected": "#FF262236"
+  }
+}

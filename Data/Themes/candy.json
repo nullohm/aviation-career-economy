@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "name": "Candy",
+    "displayName": "Candy Theme",
+    "author": "ACE",
+    "version": "1.0",
+    "description": "Sweet and colorful theme with pink and purple tones"
+  },
+  "colors": {
+    "_comment_backgrounds": "Background colors for different UI layers",
+    "bgPrimary": "#FF1A1625",
+    "bgSecondary": "#FF231E2E",
+    "cardBg": "#FF2D2640",
+
+    "_comment_accent": "Accent colors for interactive elements and highlights",
+    "accent": "#FFFF6B9D",
+    "accentSecondary": "#FF9D4EDD",
+    "accentGradientStart": "#FFFF6B9D",
+    "accentGradientEnd": "#FFC850C0",
+
+    "_comment_text": "Text and foreground colors",
+    "foreground": "#FFF8F0FC",
+    "subtleForeground": "#FFB8A5C8",
+
+    "_comment_borders": "Border and separator colors",
+    "border": "#FF3D3455",
+
+    "_comment_status": "Status and feedback colors",
+    "success": "#FF50C878",
+    "successGradientStart": "#FF6EE890",
+    "successGradientEnd": "#FF50C878",
+    "warning": "#FFFFB347",
+    "danger": "#FFFF6B6B",
+
+    "_comment_special": "Special purpose colors",
+    "purpleAccent": "#FF9D4EDD",
+    "cyanAccent": "#FF7DF9FF",
+    "gold": "#FFFFD700",
+    "epauletteBackground": "#FF2D2640",
+
+    "_comment_glass": "Glass effect colors (with transparency)",
+    "glass": "#1AFF6B9D",
+    "glassBorder": "#33FF6B9D",
+
+    "_comment_navigation": "Navigation UI colors",
+    "navHover": "#FF3D3455",
+    "navSelected": "#FF2D2640"
+  }
+}

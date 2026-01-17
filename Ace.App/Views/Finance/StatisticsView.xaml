@@ -1,0 +1,491 @@
+<UserControl x:Class="Ace.App.Views.Finance.StatisticsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:oxy="http://oxyplot.org/wpf"
+             xmlns:converters="clr-namespace:Ace.App.Converters"
+             xmlns:controls="clr-namespace:Ace.App.Controls"
+             xmlns:mapsui="clr-namespace:Mapsui.UI.Wpf;assembly=Mapsui.UI.Wpf"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="900">
+    <UserControl.Resources>
+        <converters:AmountToColorConverter x:Key="AmountToColorConverter"/>
+    </UserControl.Resources>
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Statistics" Style="{StaticResource HeadingText}" FontSize="24" Margin="0,0,0,16"/>
+
+        <TabControl Grid.Row="1">
+
+            <!-- TAB 1: Earnings Overview -->
+            <TabItem Header="Earnings">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="300"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Summary Cards -->
+                    <WrapPanel Margin="0,0,0,20">
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Earnings" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtEarningsTotalProfit" Text="€0" FontSize="28" FontWeight="Bold" Foreground="#4CAF50"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Revenue" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtEarningsTotalRevenue" Text="€0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Costs" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtEarningsTotalCosts" Text="€0" FontSize="28" FontWeight="Bold" Foreground="#F44336"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Flight Hours" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtEarningsFlightHours" Text="0h" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Distance Flown" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtEarningsDistance" Text="0 NM" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Profit Margin" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtEarningsProfitMargin" Text="0%" FontSize="28" FontWeight="Bold" Foreground="#FFD700"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+
+                    <TextBlock Grid.Row="1" Text="Daily Profit (Last 30 Days)" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <Border Grid.Row="2" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,20">
+                        <oxy:PlotView x:Name="DailyProfitChart" Background="Transparent"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="3" Text="Top Performing Aircraft" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Visible">
+                        <DataGrid x:Name="TopAircraftGrid" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Disabled">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Registration" Binding="{Binding Registration}" Width="100"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="180"/>
+                                <DataGridTextColumn Header="Days" Binding="{Binding DaysActive}" Width="60"/>
+                                <DataGridTextColumn Header="Hours" Binding="{Binding TotalHours, StringFormat={}{0:F1}h}" Width="80"/>
+                                <DataGridTextColumn Header="Distance" Binding="{Binding TotalDistance, StringFormat={}{0:N0} NM}" Width="100"/>
+                                <DataGridTextColumn Header="Revenue" Binding="{Binding TotalRevenue, StringFormat={}€{0:N0}}" Width="100"/>
+                                <DataGridTextColumn Header="Costs" Binding="{Binding TotalCosts, StringFormat={}€{0:N0}}" Width="100"/>
+                                <DataGridTemplateColumn Header="Profit" Width="100">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding TotalProfit, StringFormat={}€{0:N0}}" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#4CAF50"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsProfitNegative}" Value="True">
+                                                                <Setter Property="Foreground" Value="#F44336"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="Margin" Binding="{Binding ProfitMargin, StringFormat={}{0:F1}%}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 2: Flight Map -->
+            <TabItem Header="Flight Map">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                        <Button x:Name="BtnRefreshMap" Content="Refresh" Padding="12,6" Margin="0,0,8,0" Click="BtnRefreshMap_Click"/>
+                        <Button x:Name="BtnCenterAircraft" Content="Center on Aircraft" Padding="12,6" Margin="0,0,8,0" Click="BtnCenterAircraft_Click"/>
+                        <TextBlock x:Name="TxtMapStatus" VerticalAlignment="Center" Foreground="{StaticResource SubtleForegroundBrush}" Margin="12,0,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" Background="{StaticResource CardBg}" CornerRadius="4">
+                        <Grid>
+                            <mapsui:MapControl x:Name="MapControl"/>
+
+                            <!-- Unified Legend Panel (Left Bottom) -->
+                            <controls:MapLegendPanelControl x:Name="LegendPanel" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16,0,0,48"/>
+
+                            <!-- Scale Control (Left Bottom) -->
+                            <controls:MapScaleControl x:Name="FlightMapScaleControl" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="16,0,0,16"/>
+
+                            <!-- Map Layer Toggle (Center Bottom) -->
+                            <Border HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,0,16"
+                                    Background="{StaticResource CardBg}"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="4">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.3" Color="Black"/>
+                                </Border.Effect>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button x:Name="StreetLayerButton"
+                                            Content="Street"
+                                            Width="70"
+                                            Height="32"
+                                            FontSize="11"
+                                            Margin="0,0,2,0"
+                                            Click="StreetLayerButton_Click"
+                                            Style="{StaticResource IconButtonStyle}"/>
+                                    <Button x:Name="TerrainLayerButton"
+                                            Content="Terrain"
+                                            Width="70"
+                                            Height="32"
+                                            FontSize="11"
+                                            Margin="0,0,2,0"
+                                            Click="TerrainLayerButton_Click"
+                                            Style="{StaticResource IconButtonStyle}"/>
+                                    <Button x:Name="SatelliteLayerButton"
+                                            Content="Satellite"
+                                            Width="70"
+                                            Height="32"
+                                            FontSize="11"
+                                            Click="SatelliteLayerButton_Click"
+                                            Style="{StaticResource IconButtonStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 3: Flights -->
+            <TabItem Header="Flights">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="180"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Flight Stats Cards -->
+                    <WrapPanel Margin="0,0,0,16">
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,0" MinWidth="120">
+                            <StackPanel>
+                                <TextBlock Text="Total Flights" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtTotalFlights" Text="0" FontSize="24" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,0" MinWidth="120">
+                            <StackPanel>
+                                <TextBlock Text="Total Distance" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtTotalFlightDistance" Text="0 NM" FontSize="24" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,0" MinWidth="120">
+                            <StackPanel>
+                                <TextBlock Text="Total Duration" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtTotalFlightDuration" Text="0h" FontSize="24" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,0" MinWidth="120">
+                            <StackPanel>
+                                <TextBlock Text="Avg Landing Rate" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtAvgLandingRate" Text="0 fpm" FontSize="24" FontWeight="Bold" Foreground="#4CAF50"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+
+                    <!-- Monthly Flights Chart -->
+                    <Border Grid.Row="1" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Flights per Month" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
+                            <oxy:PlotView Grid.Row="1" x:Name="MonthlyFlightsChart" Background="Transparent"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+                        <TextBlock Text="Filter:" Foreground="{StaticResource SubtleForegroundBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ComboBox x:Name="CmbAircraftFilter" Width="180" Height="28" VerticalContentAlignment="Center" SelectionChanged="CmbAircraftFilter_SelectionChanged">
+                            <ComboBoxItem Content="All Aircraft" IsSelected="True"/>
+                        </ComboBox>
+                        <Grid Margin="20,0,0,0" Width="200">
+                            <TextBox x:Name="TxtFilter" Height="28" VerticalContentAlignment="Center" Padding="8,4" TextChanged="TxtFilter_TextChanged"/>
+                            <TextBlock x:Name="TxtFilterHint" Text="Search ICAO..." Foreground="#888888" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False"/>
+                        </Grid>
+                    </StackPanel>
+
+                    <TextBlock x:Name="FlightCountText" Grid.Row="3" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <DataGrid Name="FlightsGrid" Grid.Row="4" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Departure" Binding="{Binding Departure}" Width="80"/>
+                            <DataGridTextColumn Header="Arrival" Binding="{Binding Arrival}" Width="80"/>
+                            <DataGridTextColumn Header="Distance" Binding="{Binding DistanceNM, StringFormat={}{0:F1} nm}" Width="100"/>
+                            <DataGridTextColumn Header="Landing" Binding="{Binding LandingRate, StringFormat={}-{0:F0} fpm}" FontWeight="Bold" Width="100"/>
+                            <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy HH:mm}}" Width="140"/>
+                            <DataGridTextColumn Header="Duration" Binding="{Binding Duration, StringFormat={}{0:hh\\:mm\\:ss}}" Width="100"/>
+                            <DataGridTextColumn Header="Aircraft" Binding="{Binding AircraftTitle}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 4: Fleet -->
+            <TabItem Header="Fleet">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="200"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <WrapPanel Margin="0,0,0,20">
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Aircraft" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtFleetCount" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Fleet Value" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtFleetValue" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Flight Hours" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtFleetHours" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="In Maintenance" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtFleetMaintenance" Text="0" FontSize="28" FontWeight="Bold" Foreground="#FFA500"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Avg Hours/Aircraft" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtFleetAvgHours" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+
+                    <!-- Fleet Charts Row -->
+                    <Grid Grid.Row="1" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,8,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Fleet by Category" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
+                                <oxy:PlotView Grid.Row="1" x:Name="FleetSizePieChart" Background="Transparent"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Grid.Column="1" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="8,0,0,0">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="Fleet by Status" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
+                                <oxy:PlotView Grid.Row="1" x:Name="FleetStatusPieChart" Background="Transparent"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <TextBlock Grid.Row="2" Text="Aircraft Details" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Visible">
+                        <DataGrid x:Name="FleetGrid" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Disabled">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Registration" Binding="{Binding Registration}" Width="100"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="200"/>
+                                <DataGridTextColumn Header="Flight Hours" Binding="{Binding TotalFlightHours, StringFormat={}{0:F1}h}" Width="100"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                                <DataGridTextColumn Header="Value" Binding="{Binding CurrentValue, StringFormat={}€{0:N0}}" Width="120"/>
+                                <DataGridTextColumn Header="Home Base" Binding="{Binding HomeBase}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 5: Finance -->
+            <TabItem Header="Finance">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="250"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="200"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <WrapPanel Margin="0,0,0,20">
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Revenue" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtTotalRevenue" Text="0" FontSize="28" FontWeight="Bold" Foreground="#4CAF50"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Expenses" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtTotalExpenses" Text="0" FontSize="28" FontWeight="Bold" Foreground="#F44336"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Net Profit" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtNetProfit" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Current Balance" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtCurrentBalance" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Avg Monthly Profit" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtAvgMonthlyProfit" Text="0" FontSize="28" FontWeight="Bold" Foreground="#FFD700"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+
+                    <TextBlock Grid.Row="1" Text="Cumulative Revenue vs Expenses" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <Border Grid.Row="2" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,20">
+                        <oxy:PlotView Model="{Binding RevenueExpenseChartModel}" Background="Transparent"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="3" Text="Monthly Profit Trend" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <Border Grid.Row="4" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,20">
+                        <oxy:PlotView x:Name="MonthlyProfitChart" Background="Transparent"/>
+                    </Border>
+
+                    <TextBlock Grid.Row="5" Text="Recent Transactions" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
+
+                    <ScrollViewer Grid.Row="6" VerticalScrollBarVisibility="Visible">
+                        <DataGrid x:Name="TransactionsGrid" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Disabled">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat={}{0:dd.MM.yyyy}}" Width="100"/>
+                                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+                                <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
+                                <DataGridTemplateColumn Header="Amount" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Amount, StringFormat={}€{0:N2}}"
+                                                       FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{Binding Amount, Converter={StaticResource AmountToColorConverter}}"/>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+
+            <!-- TAB 6: Pilots -->
+            <TabItem Header="Pilots">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <WrapPanel Margin="0,0,0,20">
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Employed Pilots" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtPilotCount" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Monthly Salaries" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtPilotSalaries" Text="0" FontSize="28" FontWeight="Bold" Foreground="#F44336"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Total Flight Hours" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtPilotHours" Text="0" FontSize="28" FontWeight="Bold" Foreground="{StaticResource ForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,12,12" MinWidth="150">
+                            <StackPanel>
+                                <TextBlock Text="Assigned to Aircraft" Foreground="{StaticResource SubtleForegroundBrush}" FontSize="12"/>
+                                <TextBlock x:Name="TxtPilotsAssigned" Text="0" FontSize="28" FontWeight="Bold" Foreground="#4CAF50"/>
+                            </StackPanel>
+                        </Border>
+                    </WrapPanel>
+
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Visible">
+                        <DataGrid x:Name="PilotsGrid" AutoGenerateColumns="False" IsReadOnly="True" VerticalScrollBarVisibility="Disabled">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="180"/>
+                                <DataGridTextColumn Header="Rank" Binding="{Binding Rank}" Width="100"/>
+                                <DataGridTextColumn Header="Flight Hours" Binding="{Binding TotalFlightHours, StringFormat={}{0:F1}h}" Width="100"/>
+                                <DataGridTextColumn Header="Salary" Binding="{Binding SalaryPerMonth, StringFormat={}€{0:N0}/mo}" Width="120"/>
+                                <DataGridTextColumn Header="Assigned Aircraft" Binding="{Binding AssignedAircraftReg}" Width="140"/>
+                                <DataGridTextColumn Header="Status" Binding="{Binding StatusText}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

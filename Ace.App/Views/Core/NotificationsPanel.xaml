@@ -1,0 +1,44 @@
+<UserControl x:Class="Ace.App.Views.Core.NotificationsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             mc:Ignorable="d" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             d:DesignHeight="200" d:DesignWidth="400">
+    <Border Style="{StaticResource GlassCardStyle}">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal">
+                    <Path Data="{StaticResource IconNotification}" Fill="{StaticResource AccentBrush}" Stretch="Uniform" Width="18" Height="18" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="Benachrichtigungen" Style="{StaticResource HeadingText}" FontSize="18" VerticalAlignment="Center"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Border x:Name="DangerBadge" Background="{StaticResource DangerBrush}" CornerRadius="10" Padding="8,2" Margin="0,0,8,0" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtDangerCount" Text="0" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                    </Border>
+                    <Border x:Name="WarningBadge" Background="{StaticResource WarningBrush}" CornerRadius="10" Padding="8,2" Visibility="Collapsed">
+                        <TextBlock x:Name="TxtWarningCount" Text="0" FontSize="12" FontWeight="Bold" Foreground="Black"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" MaxHeight="200">
+                <StackPanel x:Name="NotificationsList">
+                    <TextBlock x:Name="TxtNoNotifications" Text="Keine Benachrichtigungen"
+                               Foreground="{StaticResource SubtleForegroundBrush}"
+                               FontSize="13"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,20"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>
