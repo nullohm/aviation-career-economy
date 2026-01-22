@@ -136,6 +136,7 @@ namespace Ace.App
                 loadingWindow.UpdateStatus("Initializing achievements...");
                 var achievementService = ServiceProvider.GetRequiredService<IAchievementService>();
                 achievementService.InitializeAchievements();
+                achievementService.RefreshAllAchievements();
                 achievementService.AchievementUnlocked += OnAchievementUnlocked;
 
                 loadingWindow.UpdateStatus("Starting main application...");

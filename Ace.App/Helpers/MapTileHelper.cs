@@ -77,10 +77,10 @@ namespace Ace.App.Helpers
         {
             var tileSource = new HttpTileSource(
                 new GlobalSphericalMercator(),
-                "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
-                new[] { "a", "b", "c", "d" },
-                name: "Stamen Terrain");
-            return CreateSilentTileLayer(tileSource, "Stamen Terrain");
+                "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+                new[] { "a", "b", "c" },
+                name: "OpenTopoMap");
+            return CreateSilentTileLayer(tileSource, "OpenTopoMap");
         }
 
         private static TileLayer CreateSatelliteLayer()

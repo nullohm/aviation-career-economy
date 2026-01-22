@@ -13,6 +13,8 @@ namespace Ace.App.Services
         private readonly IFinanceService _financeService;
         private readonly ISettingsService _settingsService;
         private readonly ISoundService _soundService;
+        private readonly IPersistenceService _persistenceService;
+        private readonly IPilotRepository _pilotRepository;
 
         public event Action<Achievement>? AchievementUnlocked;
 
@@ -73,12 +75,20 @@ namespace Ace.App.Services
             new("landing_good", "Good Landing", "Land with less than -200 fpm", AchievementCategory.Special, AchievementTier.Bronze, "👍", 1, 1000),
         };
 
-        public AchievementService(ILoggingService logger, IFinanceService financeService, ISettingsService settingsService, ISoundService soundService)
+        public AchievementService(
+            ILoggingService logger,
+            IFinanceService financeService,
+            ISettingsService settingsService,
+            ISoundService soundService,
+            IPersistenceService persistenceService,
+            IPilotRepository pilotRepository)
         {
             _logger = logger;
             _financeService = financeService;
             _settingsService = settingsService;
             _soundService = soundService;
+            _persistenceService = persistenceService;
+            _pilotRepository = pilotRepository;
         }
 
         public void InitializeAchievements()
@@ -108,6 +118,22 @@ namespace Ace.App.Services
 
             db.SaveChanges();
             _logger.Debug($"Initialized {AchievementDefinitions.Count} achievements");
+        }
+
+        public void RefreshAllAchievements()
+        {
+            var flights = _persistenceService.LoadFlightRecords() ?? new List<FlightRecord>();
+            var totalFlights = flights.Count;
+            var totalDistanceNM = flights.Sum(f => f.DistanceNM);
+            var totalFlightHours = flights.Sum(f => f.Duration.TotalHours);
+
+            var pilots = _pilotRepository.GetEmployedPilots();
+            var pilotCount = pilots.Count;
+
+            CheckFlightAchievements(totalFlights, totalDistanceNM);
+            CheckPilotAchievements(pilotCount, totalFlightHours);
+
+            _logger.Debug($"Refreshed achievements - Flights: {totalFlights}, Distance: {totalDistanceNM:F0}NM, Hours: {totalFlightHours:F1}h, Pilots: {pilotCount}");
         }
 
         public List<Achievement> GetAllAchievements()

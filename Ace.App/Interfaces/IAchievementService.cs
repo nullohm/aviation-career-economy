@@ -14,6 +14,7 @@ namespace Ace.App.Interfaces
         Achievement? GetAchievement(string key);
 
         void InitializeAchievements();
+        void RefreshAllAchievements();
         void UpdateProgress(string key, int progress);
         void IncrementProgress(string key, int amount = 1);
         void CheckAndUnlock(string key);
