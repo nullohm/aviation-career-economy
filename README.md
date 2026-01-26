@@ -2,6 +2,32 @@
 
 A flight management simulation application for Microsoft Flight Simulator 2024, built with WPF and .NET.
 
+## Screenshots
+
+| Dashboard | Flight Planner |
+|-----------|----------------|
+| ![Dashboard](screenshots/ace1.png) | ![Flight Planner](screenshots/ace2.png) |
+
+| FBO Management | Aircraft Hangar |
+|----------------|-----------------|
+| ![FBO Management](screenshots/ace3.png) | ![Aircraft Hangar](screenshots/ace4.png) |
+
+| Personnel | Aircraft Market |
+|-----------|-----------------|
+| ![Personnel](screenshots/ace5.png) | ![Aircraft Market](screenshots/ace6.png) |
+
+| Statistics | Finance |
+|------------|---------|
+| ![Statistics](screenshots/ace7.png) | ![Finance](screenshots/ace8.png) |
+
+| Achievements | User Manual |
+|--------------|-------------|
+| ![Achievements](screenshots/ace9.png) | ![User Manual](screenshots/ace10.png) |
+
+| Settings | Economy Settings |
+|----------|------------------|
+| ![Settings](screenshots/ace11.png) | ![Economy Settings](screenshots/ace12.png) |
+
 ## Installation
 
 ### Download
