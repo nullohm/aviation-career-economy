@@ -8,6 +8,7 @@ namespace Ace.App.Interfaces
         List<Pilot> GetAvailablePilots();
         List<Pilot> GetEmployedPilots();
         List<Pilot> GetEmployedNonPlayerPilots();
+        Pilot? GetPlayerPilot();
         Pilot? GetPilotById(int id);
         void HirePilot(int pilotId);
         void FirePilot(int pilotId);

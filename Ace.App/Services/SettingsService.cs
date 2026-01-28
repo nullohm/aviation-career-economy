@@ -1268,7 +1268,7 @@ namespace Ace.App.Services
                 "Ryan PT-22",
                 "Stearman", "PT-17",
                 "Waco", "YMF",
-                "Curtiss",
+                "Curtiss", "C-46", "C-47",
                 "Lockheed Constellation", "L-049", "L-1049",
                 "Boeing 307", "Stratoliner",
                 "Howard DGA",

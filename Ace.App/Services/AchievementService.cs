@@ -15,6 +15,7 @@ namespace Ace.App.Services
         private readonly ISoundService _soundService;
         private readonly IPersistenceService _persistenceService;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IFBORepository _fboRepository;
 
         public event Action<Achievement>? AchievementUnlocked;
 
@@ -81,7 +82,8 @@ namespace Ace.App.Services
             ISettingsService settingsService,
             ISoundService soundService,
             IPersistenceService persistenceService,
-            IPilotRepository pilotRepository)
+            IPilotRepository pilotRepository,
+            IFBORepository fboRepository)
         {
             _logger = logger;
             _financeService = financeService;
@@ -89,6 +91,7 @@ namespace Ace.App.Services
             _soundService = soundService;
             _persistenceService = persistenceService;
             _pilotRepository = pilotRepository;
+            _fboRepository = fboRepository;
         }
 
         public void InitializeAchievements()
@@ -125,15 +128,19 @@ namespace Ace.App.Services
             var flights = _persistenceService.LoadFlightRecords() ?? new List<FlightRecord>();
             var totalFlights = flights.Count;
             var totalDistanceNM = flights.Sum(f => f.DistanceNM);
-            var totalFlightHours = flights.Sum(f => f.Duration.TotalHours);
 
             var pilots = _pilotRepository.GetEmployedPilots();
             var pilotCount = pilots.Count;
+            var playerPilot = _pilotRepository.GetPlayerPilot();
+            var playerFlightHours = playerPilot?.TotalFlightHours ?? 0;
+
+            var fboCount = _fboRepository.GetAllFBOs().Count;
 
             CheckFlightAchievements(totalFlights, totalDistanceNM);
-            CheckPilotAchievements(pilotCount, totalFlightHours);
+            CheckPilotAchievements(pilotCount, playerFlightHours);
+            CheckFBOAchievements(fboCount);
 
-            _logger.Debug($"Refreshed achievements - Flights: {totalFlights}, Distance: {totalDistanceNM:F0}NM, Hours: {totalFlightHours:F1}h, Pilots: {pilotCount}");
+            _logger.Debug($"Refreshed achievements - Flights: {totalFlights}, Distance: {totalDistanceNM:F0}NM, PlayerHours: {playerFlightHours:F1}h, Pilots: {pilotCount}, FBOs: {fboCount}");
         }
 
         public List<Achievement> GetAllAchievements()
@@ -226,7 +233,6 @@ namespace Ace.App.Services
         {
             using var db = new AceDbContext();
             var achievements = db.Achievements.Where(a => !a.IsUnlocked).ToList();
-            bool changed = false;
 
             foreach (var achievement in achievements)
             {
@@ -236,7 +242,6 @@ namespace Ace.App.Services
                     if (achievement.Progress >= achievement.Target)
                     {
                         UnlockAchievement(db, achievement);
-                        changed = true;
                     }
                 }
                 else if (achievement.Category == AchievementCategory.Distance && achievement.Key.StartsWith("distance_"))
@@ -245,19 +250,17 @@ namespace Ace.App.Services
                     if (achievement.Progress >= achievement.Target)
                     {
                         UnlockAchievement(db, achievement);
-                        changed = true;
                     }
                 }
             }
 
-            if (changed) db.SaveChanges();
+            db.SaveChanges();
         }
 
         public void CheckFleetAchievements(int aircraftCount, decimal fleetValue)
         {
             using var db = new AceDbContext();
             var achievements = db.Achievements.Where(a => !a.IsUnlocked && a.Category == AchievementCategory.Fleet).ToList();
-            bool changed = false;
 
             foreach (var achievement in achievements)
             {
@@ -273,18 +276,16 @@ namespace Ace.App.Services
                 if (achievement.Progress >= achievement.Target)
                 {
                     UnlockAchievement(db, achievement);
-                    changed = true;
                 }
             }
 
-            if (changed) db.SaveChanges();
+            db.SaveChanges();
         }
 
         public void CheckFinanceAchievements(decimal totalAssets, decimal totalRevenue, decimal totalProfit)
         {
             using var db = new AceDbContext();
             var achievements = db.Achievements.Where(a => !a.IsUnlocked && a.Category == AchievementCategory.Finance).ToList();
-            bool changed = false;
 
             foreach (var achievement in achievements)
             {
@@ -304,18 +305,16 @@ namespace Ace.App.Services
                 if (achievement.Progress >= achievement.Target)
                 {
                     UnlockAchievement(db, achievement);
-                    changed = true;
                 }
             }
 
-            if (changed) db.SaveChanges();
+            db.SaveChanges();
         }
 
         public void CheckFBOAchievements(int fboCount)
         {
             using var db = new AceDbContext();
             var achievements = db.Achievements.Where(a => !a.IsUnlocked && a.Category == AchievementCategory.FBOs).ToList();
-            bool changed = false;
 
             foreach (var achievement in achievements)
             {
@@ -323,18 +322,16 @@ namespace Ace.App.Services
                 if (achievement.Progress >= achievement.Target)
                 {
                     UnlockAchievement(db, achievement);
-                    changed = true;
                 }
             }
 
-            if (changed) db.SaveChanges();
+            db.SaveChanges();
         }
 
         public void CheckPilotAchievements(int pilotCount, double totalFlightHours)
         {
             using var db = new AceDbContext();
             var achievements = db.Achievements.Where(a => !a.IsUnlocked && a.Category == AchievementCategory.Pilots).ToList();
-            bool changed = false;
 
             foreach (var achievement in achievements)
             {
@@ -350,11 +347,10 @@ namespace Ace.App.Services
                 if (achievement.Progress >= achievement.Target)
                 {
                     UnlockAchievement(db, achievement);
-                    changed = true;
                 }
             }
 
-            if (changed) db.SaveChanges();
+            db.SaveChanges();
         }
 
         public void CheckLandingAchievement(double landingRateFpm)

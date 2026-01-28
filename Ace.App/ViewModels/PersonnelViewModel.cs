@@ -208,8 +208,9 @@ namespace Ace.App.ViewModels
         {
             var employedPilots = _pilotRepository.GetEmployedPilots();
             var pilotCount = employedPilots.Count;
-            var totalFlightHours = employedPilots.Sum(p => p.TotalFlightHours);
-            _achievementService.CheckPilotAchievements(pilotCount, totalFlightHours);
+            var playerPilot = _pilotRepository.GetPlayerPilot();
+            var playerFlightHours = playerPilot?.TotalFlightHours ?? 0;
+            _achievementService.CheckPilotAchievements(pilotCount, playerFlightHours);
         }
 
         private bool CanFirePilot(PilotViewModel? pilot)

@@ -76,6 +76,20 @@ namespace Ace.App.Repositories
             }
         }
 
+        public Pilot? GetPlayerPilot()
+        {
+            try
+            {
+                using var db = new AceDbContext();
+                return db.Pilots.FirstOrDefault(p => p.IsPlayer);
+            }
+            catch (Exception ex)
+            {
+                _log.Error($"PilotRepository: Failed to get player pilot: {ex.Message}");
+                return null;
+            }
+        }
+
         public Pilot? GetPilotById(int id)
         {
             try
