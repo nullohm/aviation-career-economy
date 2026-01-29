@@ -62,6 +62,8 @@
                     <ComboBoxItem Content="Cargo (High)"/>
                     <ComboBoxItem Content="Price (Low)"/>
                     <ComboBoxItem Content="Price (High)"/>
+                    <ComboBoxItem Content="Profit/h (Low)"/>
+                    <ComboBoxItem Content="Profit/h (High)"/>
                 </ComboBox>
 
                 <!-- Create Button -->
@@ -258,6 +260,10 @@
                                                     <Border Background="#F44336" CornerRadius="3" Padding="5,2" Margin="8,0,0,0"
                                                             Visibility="{Binding CanAfford, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                                         <TextBlock Text="Can't afford" FontSize="9" Foreground="White" FontWeight="SemiBold"/>
+                                                    </Border>
+                                                    <Border Background="#FF8F00" CornerRadius="3" Padding="5,2" Margin="8,0,0,0"
+                                                            Visibility="{Binding CanSellToAfford, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                        <TextBlock Text="Sell to afford" FontSize="9" Foreground="White" FontWeight="SemiBold"/>
                                                     </Border>
                                                 </StackPanel>
                                             </Grid>

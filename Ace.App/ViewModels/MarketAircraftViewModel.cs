@@ -12,6 +12,7 @@ namespace Ace.App.ViewModels
     {
         private readonly AircraftInfo _aircraftInfo;
         private bool _canAfford;
+        private bool _canSellToAfford;
 
         public MarketAircraftViewModel(AircraftInfo aircraftInfo)
         {
@@ -67,6 +68,19 @@ namespace Ace.App.ViewModels
                 if (_canAfford != value)
                 {
                     _canAfford = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool CanSellToAfford
+        {
+            get => _canSellToAfford;
+            set
+            {
+                if (_canSellToAfford != value)
+                {
+                    _canSellToAfford = value;
                     OnPropertyChanged();
                 }
             }

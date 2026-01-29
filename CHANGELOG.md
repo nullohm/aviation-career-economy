@@ -3,6 +3,9 @@
 ## [Unreleased]
 
 ### Added
+- Added "Sell to afford" badge in Aircraft Market showing when selling fleet aircraft would cover the purchase price
+- Added Profit/h sorting option in Aircraft Market (ascending and descending)
+- Added dark-themed tooltips for all Statistics charts (replaces unreadable default yellow tooltips)
 - Added screenshots to README for GitHub presentation
 - Added Curtiss C-46 aircraft image and marked as oldtimer
 - Added C-46/C-47 to oldtimer pattern list

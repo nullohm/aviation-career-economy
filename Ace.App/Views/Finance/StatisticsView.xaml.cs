@@ -227,7 +227,8 @@ namespace Ace.App.Views.Finance
 
             var barSeries = new BarSeries
             {
-                StrokeThickness = 0
+                StrokeThickness = 0,
+                TrackerFormatString = "{Category}: €{Value:N0}"
             };
 
             foreach (var day in dailyData)
@@ -695,7 +696,8 @@ namespace Ace.App.Views.Finance
 
             var barSeries = new BarSeries
             {
-                StrokeThickness = 0
+                StrokeThickness = 0,
+                TrackerFormatString = "{Category}: €{Value:N0}"
             };
 
             foreach (var month in monthlyData)

@@ -11,6 +11,13 @@
              d:DesignHeight="600" d:DesignWidth="900">
     <UserControl.Resources>
         <converters:AmountToColorConverter x:Key="AmountToColorConverter"/>
+        <ControlTemplate x:Key="DarkTrackerTemplate">
+            <oxy:TrackerControl Position="{Binding Position}" Background="#FF21262D" BorderBrush="#FF30363D" BorderThickness="1" LineStroke="Transparent">
+                <oxy:TrackerControl.Content>
+                    <TextBlock Text="{Binding}" Foreground="#FFF0F6FC" FontSize="12" Margin="8,4"/>
+                </oxy:TrackerControl.Content>
+            </oxy:TrackerControl>
+        </ControlTemplate>
     </UserControl.Resources>
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -76,7 +83,7 @@
                     <TextBlock Grid.Row="1" Text="Daily Profit (Last 30 Days)" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
 
                     <Border Grid.Row="2" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,20">
-                        <oxy:PlotView x:Name="DailyProfitChart" Background="Transparent"/>
+                        <oxy:PlotView x:Name="DailyProfitChart" Background="Transparent" DefaultTrackerTemplate="{StaticResource DarkTrackerTemplate}"/>
                     </Border>
 
                     <TextBlock Grid.Row="3" Text="Top Performing Aircraft" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
@@ -230,7 +237,7 @@
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Flights per Month" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
-                            <oxy:PlotView Grid.Row="1" x:Name="MonthlyFlightsChart" Background="Transparent"/>
+                            <oxy:PlotView Grid.Row="1" x:Name="MonthlyFlightsChart" Background="Transparent" DefaultTrackerTemplate="{StaticResource DarkTrackerTemplate}"/>
                         </Grid>
                     </Border>
 
@@ -318,7 +325,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Fleet by Category" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
-                                <oxy:PlotView Grid.Row="1" x:Name="FleetSizePieChart" Background="Transparent"/>
+                                <oxy:PlotView Grid.Row="1" x:Name="FleetSizePieChart" Background="Transparent" DefaultTrackerTemplate="{StaticResource DarkTrackerTemplate}"/>
                             </Grid>
                         </Border>
 
@@ -329,7 +336,7 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
                                 <TextBlock Text="Fleet by Status" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,8"/>
-                                <oxy:PlotView Grid.Row="1" x:Name="FleetStatusPieChart" Background="Transparent"/>
+                                <oxy:PlotView Grid.Row="1" x:Name="FleetStatusPieChart" Background="Transparent" DefaultTrackerTemplate="{StaticResource DarkTrackerTemplate}"/>
                             </Grid>
                         </Border>
                     </Grid>
@@ -400,13 +407,13 @@
                     <TextBlock Grid.Row="1" Text="Cumulative Revenue vs Expenses" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
 
                     <Border Grid.Row="2" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,20">
-                        <oxy:PlotView Model="{Binding RevenueExpenseChartModel}" Background="Transparent"/>
+                        <oxy:PlotView Model="{Binding RevenueExpenseChartModel}" Background="Transparent" DefaultTrackerTemplate="{StaticResource DarkTrackerTemplate}"/>
                     </Border>
 
                     <TextBlock Grid.Row="3" Text="Monthly Profit Trend" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>
 
                     <Border Grid.Row="4" Background="{StaticResource CardBg}" CornerRadius="4" Padding="16" Margin="0,0,0,20">
-                        <oxy:PlotView x:Name="MonthlyProfitChart" Background="Transparent"/>
+                        <oxy:PlotView x:Name="MonthlyProfitChart" Background="Transparent" DefaultTrackerTemplate="{StaticResource DarkTrackerTemplate}"/>
                     </Border>
 
                     <TextBlock Grid.Row="5" Text="Recent Transactions" FontSize="16" FontWeight="SemiBold" Foreground="{StaticResource ForegroundBrush}" Margin="0,0,0,12"/>

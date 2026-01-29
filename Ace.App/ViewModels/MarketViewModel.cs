@@ -188,6 +188,8 @@ namespace Ace.App.ViewModels
                 5 => aircraft.OrderByDescending(a => a.MaxCargoKg).ToList(),
                 6 => aircraft.OrderBy(a => a.Price).ToList(),
                 7 => aircraft.OrderByDescending(a => a.Price).ToList(),
+                8 => aircraft.OrderBy(a => a.ProfitPerHour).ToList(),
+                9 => aircraft.OrderByDescending(a => a.ProfitPerHour).ToList(),
                 _ => aircraft
             };
         }
@@ -198,9 +200,13 @@ namespace Ace.App.ViewModels
             BalanceText = $"{balance:N0} €";
             _logger.Debug($"MarketViewModel: Updated balance display to {balance:N0} €");
 
+            var fleetValue = _aircraftRepository.GetAllAircraft().Sum(a => a.CurrentValue);
+            var totalBudget = balance + fleetValue;
+
             foreach (var aircraft in MarketAircraft)
             {
                 aircraft.CanAfford = balance >= aircraft.Price;
+                aircraft.CanSellToAfford = !aircraft.CanAfford && totalBudget >= aircraft.Price;
             }
         }
 
