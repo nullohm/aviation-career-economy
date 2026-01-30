@@ -222,7 +222,7 @@ UPDATE AircraftCatalog SET CruiseSpeedKts=78, MaxRangeNM=540, FuelCapacityGal=10
 UPDATE AircraftCatalog SET CruiseSpeedKts=132, MaxRangeNM=540, FuelCapacityGal=400, FuelBurnGalPerHour=80, PassengerCapacity=17, CrewCount=3, MaxCargoKg=2000, MarketPrice=4500000 WHERE Title='Junkers Ju52';
 UPDATE AircraftCatalog SET CruiseSpeedKts=100, MaxRangeNM=650, FuelCapacityGal=370, FuelBurnGalPerHour=55, PassengerCapacity=10, CrewCount=2, MaxCargoKg=900, MarketPrice=3500000 WHERE Title='Fokker FVII';
 UPDATE AircraftCatalog SET CruiseSpeedKts=60, MaxRangeNM=130, FuelCapacityGal=21, FuelBurnGalPerHour=8, PassengerCapacity=1, CrewCount=1, MaxCargoKg=45, MarketPrice=400000 WHERE Title='Curtiss JN4 Jenny';
-UPDATE AircraftCatalog SET CruiseSpeedKts=175, MaxRangeNM=1200, FuelCapacityGal=1400, FuelBurnGalPerHour=170, PassengerCapacity=40, CrewCount=4, MaxCargoKg=6800, MarketPrice=1200000 WHERE Title='C-46';
+UPDATE AircraftCatalog SET CruiseSpeedKts=150, MaxRangeNM=1200, FuelCapacityGal=1400, FuelBurnGalPerHour=170, PassengerCapacity=40, CrewCount=4, MaxCargoKg=6800, MarketPrice=1200000 WHERE Title='C-46';
 UPDATE AircraftCatalog SET CruiseSpeedKts=160, MaxRangeNM=1350, FuelCapacityGal=822, FuelBurnGalPerHour=100, PassengerCapacity=28, CrewCount=3, MaxCargoKg=2700, MarketPrice=1500000 WHERE Title='C-47';
 UPDATE AircraftCatalog SET CruiseSpeedKts=160, MaxRangeNM=1350, FuelCapacityGal=822, FuelBurnGalPerHour=100, PassengerCapacity=28, CrewCount=3, MaxCargoKg=2700, MarketPrice=1500000 WHERE Title='DC-3';
 UPDATE AircraftCatalog SET CruiseSpeedKts=175, MaxRangeNM=2700, FuelCapacityGal=3500, FuelBurnGalPerHour=750, PassengerCapacity=0, CrewCount=3, MaxCargoKg=59000, MarketPrice=100000000 WHERE Title='Hughes H-4 Hercules';

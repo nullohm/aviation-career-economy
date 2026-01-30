@@ -190,6 +190,8 @@ namespace Ace.App.ViewModels
                 7 => aircraft.OrderByDescending(a => a.Price).ToList(),
                 8 => aircraft.OrderBy(a => a.ProfitPerHour).ToList(),
                 9 => aircraft.OrderByDescending(a => a.ProfitPerHour).ToList(),
+                10 => aircraft.OrderBy(a => a.ReturnOnInvestment).ToList(),
+                11 => aircraft.OrderByDescending(a => a.ReturnOnInvestment).ToList(),
                 _ => aircraft
             };
         }

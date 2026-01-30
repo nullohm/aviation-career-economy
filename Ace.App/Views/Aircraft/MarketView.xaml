@@ -64,6 +64,8 @@
                     <ComboBoxItem Content="Price (High)"/>
                     <ComboBoxItem Content="Profit/h (Low)"/>
                     <ComboBoxItem Content="Profit/h (High)"/>
+                    <ComboBoxItem Content="ROI (Low)"/>
+                    <ComboBoxItem Content="ROI (High)"/>
                 </ComboBox>
 
                 <!-- Create Button -->

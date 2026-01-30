@@ -58,6 +58,7 @@ namespace Ace.App.ViewModels
         public int ServiceCeilingFt { get; }
         public bool IsOldtimer { get; }
         public decimal ProfitPerHour { get; }
+        public decimal ReturnOnInvestment => Price > 0 ? ProfitPerHour / Price : 0;
         public string ProfitPerHourInfo => ProfitPerHour > 0 ? $"{ProfitPerHour:N0} €/h" : "—";
 
         public bool CanAfford

@@ -144,9 +144,9 @@ Buy new aircraft in the Market. The **Estimated Daily Profit** shows how much th
 | Feature | Description |
 |---------|-------------|
 | Search | Filter by name, manufacturer, or type |
-| Sorting | Default: Price (Low) - cheapest first |
+| Sorting | Sort by name, passengers, cargo, price, profit/h, or ROI (profit/h relative to purchase price) |
 | Prices | Realistic used prices (2024/2025 market data) |
-| Affordability | "Can't afford" badge when over budget |
+| Affordability | "Can't afford" badge when over budget, "Sell to afford" badge when selling fleet aircraft would cover the price |
 
 ### Maintenance
 
