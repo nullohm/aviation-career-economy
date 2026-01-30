@@ -26,6 +26,8 @@
 - Fixed Curtiss C-46 cruise speed (corrected from 175 to 150 kts)
 
 ### Changed
+- Flight map routes now display as great circle arcs instead of straight lines for a realistic 3D-like appearance
+- Thinner route lines across all maps for cleaner visuals
 - Improved button styling consistency in Settings view
 - AchievementService now uses IFBORepository for FBO achievement tracking
 - Expanded oldtimer/classic aircraft classification with comprehensive pattern list (96 aircraft marked)

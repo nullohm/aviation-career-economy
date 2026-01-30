@@ -161,16 +161,14 @@ namespace Ace.App.Controls
             var depPoint = new MPoint(depCoords.x, depCoords.y);
             var arrPoint = new MPoint(arrCoords.x, arrCoords.y);
 
-            var lineGeometry = new LineString(new[]
-            {
-                new Coordinate(depPoint.X, depPoint.Y),
-                new Coordinate(arrPoint.X, arrPoint.Y)
-            });
+            var lineGeometry = GreatCircleHelper.CreateGreatCircleLine(
+                departure.Longitude, departure.Latitude,
+                arrival.Longitude, arrival.Latitude);
 
             var routeFeature = new GeometryFeature(lineGeometry);
             routeFeature.Styles.Add(new VectorStyle
             {
-                Line = new Pen(Color.FromString("#FF9800"), 2) { PenStyle = PenStyle.Dash }
+                Line = new Pen(Color.FromString("#FF9800"), 1) { PenStyle = PenStyle.Dash }
             });
             features.Add(routeFeature);
 

@@ -250,14 +250,9 @@ namespace Ace.App.ViewModels
 
         private IFeature CreateRouteFeature(Airport departure, Airport arrival, FlightRecord flight)
         {
-            var depPoint = SphericalMercator.FromLonLat(departure.Longitude, departure.Latitude);
-            var arrPoint = SphericalMercator.FromLonLat(arrival.Longitude, arrival.Latitude);
-
-            var line = new LineString(new[]
-            {
-                new Coordinate(depPoint.x, depPoint.y),
-                new Coordinate(arrPoint.x, arrPoint.y)
-            });
+            var line = GreatCircleHelper.CreateGreatCircleLine(
+                departure.Longitude, departure.Latitude,
+                arrival.Longitude, arrival.Latitude);
 
             var feature = new GeometryFeature(line);
 
@@ -268,7 +263,7 @@ namespace Ace.App.ViewModels
 
             feature.Styles.Add(new VectorStyle
             {
-                Line = new Pen(Color.FromArgb(180, 255, 152, 0), 2)
+                Line = new Pen(Color.FromArgb(140, 255, 152, 0), 1)
                 {
                     PenStyle = PenStyle.Dash
                 }
@@ -449,20 +444,15 @@ namespace Ace.App.ViewModels
 
         private IFeature CreateActiveFlightPlanRoute(Airport departure, Airport arrival)
         {
-            var depPoint = SphericalMercator.FromLonLat(departure.Longitude, departure.Latitude);
-            var arrPoint = SphericalMercator.FromLonLat(arrival.Longitude, arrival.Latitude);
-
-            var line = new LineString(new[]
-            {
-                new Coordinate(depPoint.x, depPoint.y),
-                new Coordinate(arrPoint.x, arrPoint.y)
-            });
+            var line = GreatCircleHelper.CreateGreatCircleLine(
+                departure.Longitude, departure.Latitude,
+                arrival.Longitude, arrival.Latitude);
 
             var feature = new GeometryFeature(line);
 
             feature.Styles.Add(new VectorStyle
             {
-                Line = new Pen(Color.FromString("#E91E63"), 3)
+                Line = new Pen(Color.FromString("#E91E63"), 2)
                 {
                     PenStyle = PenStyle.Dash,
                     DashArray = new[] { 4f, 4f }
@@ -505,25 +495,26 @@ namespace Ace.App.ViewModels
         private List<IFeature> CreateRouteArrows(Airport departure, Airport arrival)
         {
             var arrows = new List<IFeature>();
-
-            var depPoint = SphericalMercator.FromLonLat(departure.Longitude, departure.Latitude);
-            var arrPoint = SphericalMercator.FromLonLat(arrival.Longitude, arrival.Latitude);
-
-            // Calculate bearing
-            double dx = arrPoint.x - depPoint.x;
-            double dy = arrPoint.y - depPoint.y;
-            double bearing = Math.Atan2(dx, dy) * 180 / Math.PI;
-
-            // Calculate distance and place arrows at 25%, 50%, 75%
-            double totalDist = Math.Sqrt(dx * dx + dy * dy);
             var positions = new[] { 0.25, 0.5, 0.75 };
 
             foreach (var pos in positions)
             {
-                double x = depPoint.x + dx * pos;
-                double y = depPoint.y + dy * pos;
+                var (lon, lat) = GreatCircleHelper.InterpolateGreatCirclePoint(
+                    departure.Longitude, departure.Latitude,
+                    arrival.Longitude, arrival.Latitude, pos);
 
-                var arrowFeature = new PointFeature(new MPoint(x, y));
+                var (lonNext, latNext) = GreatCircleHelper.InterpolateGreatCirclePoint(
+                    departure.Longitude, departure.Latitude,
+                    arrival.Longitude, arrival.Latitude, pos + 0.01);
+
+                var point = SphericalMercator.FromLonLat(lon, lat);
+                var pointNext = SphericalMercator.FromLonLat(lonNext, latNext);
+
+                double dx = pointNext.x - point.x;
+                double dy = pointNext.y - point.y;
+                double bearing = Math.Atan2(dx, dy) * 180 / Math.PI;
+
+                var arrowFeature = new PointFeature(new MPoint(point.x, point.y));
                 arrowFeature.Styles.Add(new SymbolStyle
                 {
                     SymbolScale = 0.5,
