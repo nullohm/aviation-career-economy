@@ -144,7 +144,9 @@ Buy new aircraft in the Market. The **Estimated Daily Profit** shows how much th
 | Feature | Description |
 |---------|-------------|
 | Search | Filter by name, manufacturer, or type |
+| Favorites | Star icon to mark favorites, toggle button to show favorites only |
 | Sorting | Sort by name, passengers, cargo, price, profit/h, or ROI (profit/h relative to purchase price) |
+| Badges | **New** (blue) for modern aircraft, **Classic** (gold) for oldtimers |
 | Prices | Realistic used prices (2024/2025 market data) |
 | Affordability | "Can't afford" badge when over budget, "Sell to afford" badge when selling fleet aircraft would cover the price |
 
@@ -408,17 +410,18 @@ Connect to MSFS 2024 for automatic flight detection and real-time data.
 
 ### Dashboard Display
 
+The dashboard features instrument-style gauges (tall, rounded rectangles) showing live flight data:
+
 | Gauge | Information |
 |-------|-------------|
-| Position | Current lat/lon |
-| Altitude | Current altitude |
-| Speed | Ground/air speed |
-| Heading | Current heading |
+| ALT | Current altitude (ft) |
+| GS | Ground speed (kts) |
+| HDG | Current heading (deg) |
+| VS | Vertical speed (fpm) |
 | AOA | Angle of Attack (stall warning) |
 | FUEL | Fuel level (%) |
 | FF | Fuel flow (GPH) |
-| Progress | Flight completion % |
-| ETA | Estimated arrival |
+| SIM | Simulation rate |
 
 **AOA Warnings:**
 - 🟡 Yellow: AoA > 12° (approaching stall)
@@ -478,7 +481,7 @@ The Statistics section provides comprehensive insights into your airline perform
 
 | Element | Meaning |
 |---------|---------|
-| Orange dashed lines | Completed flights |
+| Orange dashed curves | Completed flights (great circle arcs) |
 | Green/Blue markers | Visited airports |
 | Magenta route | Active flight plan |
 | Red triangle | Your position in MSFS |

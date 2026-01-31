@@ -1,6 +1,25 @@
 # Changelog
 
-## [Unreleased]
+## [Build 2] - 2026-01-31
+
+### Added
+- Added native Windows 11 Snap Layout support for the custom title bar (hover maximize button for layout options)
+- Added "New" badge (blue) for modern aircraft and "Classic" badge (gold) for oldtimers in Aircraft Market
+- Added favorites filter toggle button in Aircraft Market toolbar (star icon to show favorites only)
+- Added IsFavorite property to aircraft catalog with database persistence
+- Added hardware input service interface
+
+### Changed
+- Dashboard gauges redesigned from circular to tall rounded rectangles (instrument-style)
+- Aircraft Market sorting no longer pins favorites to top; favorites are now filtered via dedicated toggle
+- Aircraft Market filter performance optimized (single collection replacement instead of item-by-item updates)
+
+### Removed
+- Removed custom snap layout popup in favor of native Windows 11 snap layouts
+
+---
+
+## [Build 1] - Unreleased
 
 ### Added
 - Added "Sell to afford" badge in Aircraft Market showing when selling fleet aircraft would cover the purchase price

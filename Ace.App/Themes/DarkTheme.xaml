@@ -1036,13 +1036,14 @@
     <Style x:Key="GaugeStyle" TargetType="Border">
         <Setter Property="Background" Value="{StaticResource CardBg}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="2"/>
-        <Setter Property="CornerRadius" Value="100"/>
-        <Setter Property="Width" Value="120"/>
-        <Setter Property="Height" Value="120"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Width" Value="80"/>
+        <Setter Property="Height" Value="110"/>
+        <Setter Property="Padding" Value="4,8"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="15" ShadowDepth="0" Opacity="0.2"/>
+                <DropShadowEffect Color="{StaticResource AccentColor}" BlurRadius="10" ShadowDepth="0" Opacity="0.15"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -1271,5 +1272,6 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 
 </ResourceDictionary>

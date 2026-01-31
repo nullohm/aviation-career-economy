@@ -23,5 +23,6 @@ namespace Ace.App.Models
         public DateTime LastSeen { get; set; }
         public string? CustomImagePath { get; set; }
         public bool IsOldtimer { get; set; }
+        public bool IsFavorite { get; set; }
     }
 }

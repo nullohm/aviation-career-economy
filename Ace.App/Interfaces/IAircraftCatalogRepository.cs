@@ -12,5 +12,6 @@ namespace Ace.App.Interfaces
         void AddAircraftCatalogEntry(AircraftCatalogEntry entry);
         void UpdateCustomImagePath(string title, string? imagePath);
         void DeleteByTitle(string title);
+        void ToggleFavorite(string title);
     }
 }

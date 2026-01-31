@@ -13,6 +13,7 @@ namespace Ace.App.ViewModels
         private readonly AircraftInfo _aircraftInfo;
         private bool _canAfford;
         private bool _canSellToAfford;
+        private bool _isFavorite;
 
         public MarketAircraftViewModel(AircraftInfo aircraftInfo)
         {
@@ -26,7 +27,7 @@ namespace Ace.App.ViewModels
             Price = price;
         }
 
-        public MarketAircraftViewModel(AircraftInfo aircraftInfo, decimal price, double cruiseSpeedKts, double maxRangeNM, double fuelCapacityGal, double fuelBurnGalPerHour, decimal hourlyOperatingCost, int serviceCeilingFt = 0, string? customImagePath = null, bool isOldtimer = false, decimal profitPerHour = 0)
+        public MarketAircraftViewModel(AircraftInfo aircraftInfo, decimal price, double cruiseSpeedKts, double maxRangeNM, double fuelCapacityGal, double fuelBurnGalPerHour, decimal hourlyOperatingCost, int serviceCeilingFt = 0, string? customImagePath = null, bool isOldtimer = false, decimal profitPerHour = 0, bool isFavorite = false)
         {
             _aircraftInfo = aircraftInfo;
             Price = price;
@@ -39,6 +40,7 @@ namespace Ace.App.ViewModels
             CustomImagePath = customImagePath;
             IsOldtimer = isOldtimer;
             ProfitPerHour = profitPerHour;
+            _isFavorite = isFavorite;
         }
 
         public string Title => _aircraftInfo.Title;
@@ -86,6 +88,22 @@ namespace Ace.App.ViewModels
                 }
             }
         }
+
+        public bool IsFavorite
+        {
+            get => _isFavorite;
+            set
+            {
+                if (_isFavorite != value)
+                {
+                    _isFavorite = value;
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(FavoriteIcon));
+                }
+            }
+        }
+
+        public string FavoriteIcon => _isFavorite ? "★" : "☆";
 
         public string DisplayName => string.IsNullOrEmpty(Manufacturer)
             ? Title

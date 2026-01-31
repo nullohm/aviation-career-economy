@@ -135,6 +135,8 @@ namespace Ace.App.Services
 
             AddColumnIfNotExists(connection, "Flights", "AircraftTitle", "TEXT DEFAULT ''");
 
+            AddColumnIfNotExists(connection, "AircraftCatalog", "IsFavorite", "INTEGER DEFAULT 0");
+
             MigrateBalanceToAssetsAchievements(connection);
 
             _logger.Database("Schema update complete");

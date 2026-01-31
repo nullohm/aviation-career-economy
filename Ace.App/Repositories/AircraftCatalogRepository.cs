@@ -122,6 +122,26 @@ namespace Ace.App.Repositories
             }
         }
 
+        public void ToggleFavorite(string title)
+        {
+            try
+            {
+                using var db = new AceDbContext();
+                var aircraft = db.AircraftCatalog.FirstOrDefault(a => a.Title == title);
+                if (aircraft != null)
+                {
+                    aircraft.IsFavorite = !aircraft.IsFavorite;
+                    db.SaveChanges();
+                    _logger.Info($"AircraftCatalogRepository: Toggled favorite for {title} to {aircraft.IsFavorite}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"AircraftCatalogRepository: Failed to toggle favorite: {ex.Message}");
+                throw;
+            }
+        }
+
         public void DeleteByTitle(string title)
         {
             try

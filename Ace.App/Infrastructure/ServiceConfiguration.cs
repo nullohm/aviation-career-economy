@@ -69,6 +69,7 @@ namespace Ace.App.Infrastructure
 
 
             services.AddSingleton<SimConnectService>();
+            services.AddSingleton<IHardwareInputService, HardwareInputService>();
 
 
             services.AddSingleton<DatabaseInitializer>();

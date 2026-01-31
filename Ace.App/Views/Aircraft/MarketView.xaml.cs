@@ -79,7 +79,9 @@ namespace Ace.App.Views.Aircraft
 
             TxtDetailName.Text = _selectedAircraft.DisplayName;
             TxtDetailManufacturer.Text = _selectedAircraft.Manufacturer;
+            UpdateDetailFavoriteStar(_selectedAircraft.IsFavorite);
             DetailOldtimerBadge.Visibility = _selectedAircraft.IsOldtimer ? Visibility.Visible : Visibility.Collapsed;
+            DetailNewBadge.Visibility = _selectedAircraft.IsOldtimer ? Visibility.Collapsed : Visibility.Visible;
             TxtDetailType.Text = string.IsNullOrEmpty(_selectedAircraft.Type) ? "—" : _selectedAircraft.Type;
             TxtDetailCategory.Text = string.IsNullOrEmpty(_selectedAircraft.Category) ? "—" : _selectedAircraft.Category;
             TxtDetailSize.Text = _selectedAircraft.SizeCategory;
@@ -218,6 +220,39 @@ namespace Ace.App.Views.Aircraft
             {
                 UpdateStats();
             }
+        }
+
+        private void FavoriteToggle_Click(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            if (sender is FrameworkElement element && element.DataContext is MarketAircraftViewModel aircraft)
+            {
+                _viewModel.ToggleFavorite(aircraft);
+                UpdateStats();
+                if (_selectedAircraft?.Title == aircraft.Title)
+                    UpdateDetailFavoriteStar(aircraft.IsFavorite);
+            }
+        }
+
+        private void DetailFavoriteToggle_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (_selectedAircraft == null) return;
+            _viewModel.ToggleFavorite(_selectedAircraft);
+            UpdateDetailFavoriteStar(_selectedAircraft.IsFavorite);
+            UpdateStats();
+        }
+
+        private void FavoritesFilterToggle_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateStats();
+        }
+
+        private void UpdateDetailFavoriteStar(bool isFavorite)
+        {
+            TxtDetailFavoriteStar.Text = isFavorite ? "★" : "☆";
+            TxtDetailFavoriteStar.Foreground = isFavorite
+                ? new SolidColorBrush(Color.FromRgb(0xD4, 0xA8, 0x53))
+                : (Brush)FindResource("SubtleForegroundBrush");
         }
 
         private void CmbSort_SelectionChanged(object sender, SelectionChangedEventArgs e)

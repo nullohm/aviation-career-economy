@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -17,6 +18,9 @@ namespace Ace.App
 {
     public partial class MainWindow : Window
     {
+        private const int WM_NCHITTEST = 0x0084;
+        private const int HTMAXBUTTON = 9;
+
         public SimConnectService SimConnectService { get; }
         private readonly INavigationService _navigationService;
         private readonly ILoggingService _logger;
@@ -94,6 +98,7 @@ namespace Ace.App
             IntPtr handle = new WindowInteropHelper(this).Handle;
             SimConnectService.SetWindowHandle(handle);
             HwndSource source = HwndSource.FromHwnd(handle);
+            source.AddHook(SnapLayoutWndProc);
             source.AddHook(SimConnectService.WndProc);
             SimConnectService.Initialize();
 
@@ -102,6 +107,27 @@ namespace Ace.App
                 _logger.Debug("MainWindow: SimConnect enabled, connecting...");
                 SimConnectService.Connect();
             }
+        }
+
+        private IntPtr SnapLayoutWndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WM_NCHITTEST)
+            {
+                int x = (short)(lParam.ToInt64() & 0xFFFF);
+                int y = (short)((lParam.ToInt64() >> 16) & 0xFFFF);
+
+                var screenPoint = new Point(x, y);
+                var buttonPoint = BtnMax.PointFromScreen(screenPoint);
+                var buttonRect = new Rect(0, 0, BtnMax.ActualWidth, BtnMax.ActualHeight);
+
+                if (buttonRect.Contains(buttonPoint))
+                {
+                    handled = true;
+                    return new IntPtr(HTMAXBUTTON);
+                }
+            }
+
+            return IntPtr.Zero;
         }
 
         private void OnConnectionChanged(bool connected)
@@ -227,4 +253,3 @@ namespace Ace.App
         }
     }
 }
-

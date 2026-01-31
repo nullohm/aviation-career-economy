@@ -18,6 +18,8 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="24"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="16"/>
@@ -48,8 +50,40 @@
                                IsHitTestVisible="False"/>
                 </Grid>
 
+                <!-- Favorites Toggle -->
+                <ToggleButton Grid.Column="4" x:Name="BtnFavoritesFilter"
+                              Width="32" Height="32"
+                              VerticalAlignment="Center"
+                              ToolTip="Show favorites only"
+                              Click="FavoritesFilterToggle_Click"
+                              IsChecked="{Binding ShowOnlyFavorites}">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="ToggleBorder"
+                                    Background="{StaticResource BgSecondary}"
+                                    CornerRadius="4"
+                                    BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="1"
+                                    Cursor="Hand">
+                                <TextBlock x:Name="StarIcon" Text="★" FontSize="16"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Foreground="{StaticResource SubtleForegroundBrush}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="StarIcon" Property="Foreground" Value="#D4A853"/>
+                                    <Setter TargetName="ToggleBorder" Property="BorderBrush" Value="#D4A853"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="ToggleBorder" Property="Background" Value="{StaticResource BorderBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+
                 <!-- Sort -->
-                <ComboBox Grid.Column="4" x:Name="CmbSort"
+                <ComboBox Grid.Column="6" x:Name="CmbSort"
                           Width="180"
                           VerticalAlignment="Center"
                           SelectedIndex="6"
@@ -69,14 +103,14 @@
                 </ComboBox>
 
                 <!-- Create Button -->
-                <Button Grid.Column="6" x:Name="BtnCreate"
+                <Button Grid.Column="8" x:Name="BtnCreate"
                         Content="+ Create"
                         Click="CreateAircraftButton_Click"
                         VerticalAlignment="Center"
                         Style="{StaticResource SuccessButtonStyle}"/>
 
                 <!-- Stats Badge -->
-                <Border Grid.Column="8"
+                <Border Grid.Column="10"
                         Background="{StaticResource BgSecondary}"
                         CornerRadius="4"
                         Padding="12,6"
@@ -162,6 +196,7 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
                                             <!-- Aircraft Icon/Image -->
@@ -236,6 +271,11 @@
                                                             Visibility="{Binding IsOldtimer, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <TextBlock Text="Classic" FontSize="10" Foreground="#2D2D30" FontWeight="SemiBold"/>
                                                     </Border>
+                                                    <Border CornerRadius="3" Padding="6,2" Margin="0,0,8,0"
+                                                            Background="#2563EB"
+                                                            Visibility="{Binding IsOldtimer, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                        <TextBlock Text="New" FontSize="10" Foreground="White" FontWeight="SemiBold"/>
+                                                    </Border>
                                                     <TextBlock FontSize="11" Foreground="{StaticResource ForegroundBrush}"
                                                                Text="{Binding CapacityInfo}"/>
                                                 </StackPanel>
@@ -269,6 +309,41 @@
                                                     </Border>
                                                 </StackPanel>
                                             </Grid>
+
+                                            <!-- Favorite Star -->
+                                            <Border Grid.Column="2"
+                                                    Width="32" Height="32"
+                                                    CornerRadius="4"
+                                                    VerticalAlignment="Center"
+                                                    Margin="8,0,0,0"
+                                                    Cursor="Hand"
+                                                    MouseLeftButtonUp="FavoriteToggle_Click"
+                                                    Background="Transparent">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Style.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="{StaticResource BgSecondary}"/>
+                                                            </Trigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding FavoriteIcon}"
+                                                           FontSize="18"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{StaticResource SubtleForegroundBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsFavorite}" Value="True">
+                                                                    <Setter Property="Foreground" Value="#D4A853"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -320,9 +395,25 @@
                                                FontWeight="Bold"
                                                Foreground="{StaticResource AccentBrush}"
                                                TextTrimming="CharacterEllipsis"/>
+                                    <Border x:Name="DetailFavoriteStar"
+                                            Width="28" Height="28"
+                                            CornerRadius="4"
+                                            VerticalAlignment="Center"
+                                            Margin="8,0,0,0"
+                                            Cursor="Hand"
+                                            Background="Transparent"
+                                            MouseLeftButtonUp="DetailFavoriteToggle_Click">
+                                        <TextBlock x:Name="TxtDetailFavoriteStar" Text="☆" FontSize="18"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                    </Border>
                                     <Border x:Name="DetailOldtimerBadge" CornerRadius="3" Padding="6,2" Margin="8,0,0,0"
                                             Background="#D4A853" VerticalAlignment="Center" Visibility="Collapsed">
                                         <TextBlock Text="Classic" FontSize="10" Foreground="#2D2D30" FontWeight="SemiBold"/>
+                                    </Border>
+                                    <Border x:Name="DetailNewBadge" CornerRadius="3" Padding="6,2" Margin="8,0,0,0"
+                                            Background="#2563EB" VerticalAlignment="Center" Visibility="Collapsed">
+                                        <TextBlock Text="New" FontSize="10" Foreground="White" FontWeight="SemiBold"/>
                                     </Border>
                                 </StackPanel>
                                 <TextBlock x:Name="TxtDetailManufacturer"

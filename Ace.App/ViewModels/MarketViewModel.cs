@@ -25,6 +25,7 @@ namespace Ace.App.ViewModels
         private string _aircraftCountText = string.Empty;
         private string _balanceText = string.Empty;
         private int _currentSortIndex = 0;
+        private bool _showOnlyFavorites;
 
         public ObservableCollection<MarketAircraftViewModel> MarketAircraft
         {
@@ -60,6 +61,18 @@ namespace Ace.App.ViewModels
         {
             get => _balanceText;
             set => SetProperty(ref _balanceText, value);
+        }
+
+        public bool ShowOnlyFavorites
+        {
+            get => _showOnlyFavorites;
+            set
+            {
+                if (SetProperty(ref _showOnlyFavorites, value))
+                {
+                    ApplyFilter();
+                }
+            }
         }
 
         public MarketViewModel(
@@ -127,7 +140,8 @@ namespace Ace.App.ViewModels
                         entry.ServiceCeilingFt,
                         entry.CustomImagePath,
                         entry.IsOldtimer,
-                        profitPerHour);
+                        profitPerHour,
+                        entry.IsFavorite);
                     viewModel.CanAfford = currentBalance >= viewModel.Price;
                     MarketAircraft.Add(viewModel);
                 }
@@ -148,25 +162,24 @@ namespace Ace.App.ViewModels
         {
             var filterText = FilterText?.Trim().ToLowerInvariant() ?? "";
 
-            FilteredAircraft.Clear();
-
             var filtered = string.IsNullOrEmpty(filterText)
-                ? MarketAircraft
+                ? MarketAircraft.AsEnumerable()
                 : MarketAircraft.Where(a =>
                     a.DisplayName.ToLowerInvariant().Contains(filterText) ||
                     a.Manufacturer.ToLowerInvariant().Contains(filterText) ||
                     a.Title.ToLowerInvariant().Contains(filterText));
 
+            if (_showOnlyFavorites)
+                filtered = filtered.Where(a => a.IsFavorite);
+
             var sorted = ApplySort(filtered.ToList(), _currentSortIndex);
 
-            foreach (var aircraft in sorted)
-            {
-                FilteredAircraft.Add(aircraft);
-            }
+            FilteredAircraft = new ObservableCollection<MarketAircraftViewModel>(sorted);
 
-            AircraftCountText = string.IsNullOrEmpty(filterText)
-                ? $"{FilteredAircraft.Count} aircraft available"
-                : $"{FilteredAircraft.Count} of {MarketAircraft.Count} aircraft";
+            var isFiltered = !string.IsNullOrEmpty(filterText) || _showOnlyFavorites;
+            AircraftCountText = isFiltered
+                ? $"{FilteredAircraft.Count} of {MarketAircraft.Count} aircraft"
+                : $"{FilteredAircraft.Count} aircraft available";
         }
 
         public void SortAircraft(int sortIndex)
@@ -178,22 +191,38 @@ namespace Ace.App.ViewModels
 
         private System.Collections.Generic.List<MarketAircraftViewModel> ApplySort(System.Collections.Generic.List<MarketAircraftViewModel> aircraft, int sortIndex)
         {
-            return sortIndex switch
+            IOrderedEnumerable<MarketAircraftViewModel> sorted = sortIndex switch
             {
-                0 => aircraft.OrderBy(a => a.DisplayName).ToList(),
-                1 => aircraft.OrderByDescending(a => a.DisplayName).ToList(),
-                2 => aircraft.OrderBy(a => a.PassengerCapacity).ToList(),
-                3 => aircraft.OrderByDescending(a => a.PassengerCapacity).ToList(),
-                4 => aircraft.OrderBy(a => a.MaxCargoKg).ToList(),
-                5 => aircraft.OrderByDescending(a => a.MaxCargoKg).ToList(),
-                6 => aircraft.OrderBy(a => a.Price).ToList(),
-                7 => aircraft.OrderByDescending(a => a.Price).ToList(),
-                8 => aircraft.OrderBy(a => a.ProfitPerHour).ToList(),
-                9 => aircraft.OrderByDescending(a => a.ProfitPerHour).ToList(),
-                10 => aircraft.OrderBy(a => a.ReturnOnInvestment).ToList(),
-                11 => aircraft.OrderByDescending(a => a.ReturnOnInvestment).ToList(),
-                _ => aircraft
+                0 => aircraft.OrderBy(a => a.DisplayName),
+                1 => aircraft.OrderByDescending(a => a.DisplayName),
+                2 => aircraft.OrderBy(a => a.PassengerCapacity),
+                3 => aircraft.OrderByDescending(a => a.PassengerCapacity),
+                4 => aircraft.OrderBy(a => a.MaxCargoKg),
+                5 => aircraft.OrderByDescending(a => a.MaxCargoKg),
+                6 => aircraft.OrderBy(a => a.Price),
+                7 => aircraft.OrderByDescending(a => a.Price),
+                8 => aircraft.OrderBy(a => a.ProfitPerHour),
+                9 => aircraft.OrderByDescending(a => a.ProfitPerHour),
+                10 => aircraft.OrderBy(a => a.ReturnOnInvestment),
+                11 => aircraft.OrderByDescending(a => a.ReturnOnInvestment),
+                _ => aircraft.OrderBy(a => a.DisplayName)
             };
+            return sorted.ToList();
+        }
+
+        public void ToggleFavorite(MarketAircraftViewModel aircraft)
+        {
+            try
+            {
+                _catalogRepository.ToggleFavorite(aircraft.Title);
+                aircraft.IsFavorite = !aircraft.IsFavorite;
+                ApplyFilter();
+                _logger.Info($"MarketViewModel: Toggled favorite for {aircraft.DisplayName} to {aircraft.IsFavorite}");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"MarketViewModel: Failed to toggle favorite: {ex.Message}", ex);
+            }
         }
 
         public void UpdateBalance()

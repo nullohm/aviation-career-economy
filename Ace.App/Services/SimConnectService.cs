@@ -13,6 +13,20 @@ namespace Ace.App.Services
     public enum DataRequests { FlightData, NearestAirport }
     public enum Definitions { FlightDataStruct }
 
+    // SimConnect events for sending control inputs to MSFS
+    public enum SimEvents
+    {
+        THROTTLE1_SET,
+        THROTTLE2_SET,
+        FLAPS_SET,
+        SPOILERS_SET,
+        AILERON_SET,
+        ELEVATOR_SET,
+        RUDDER_SET,
+        GEAR_TOGGLE,
+        AP_MASTER,
+    }
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct FlightDataStruct
     {
@@ -255,6 +269,7 @@ namespace Ace.App.Services
                 _simConnect.OnRecvException += OnRecvException;
                 IsConnected = true;
                 RegisterDataDefinitions();
+                RegisterControlEvents();
             }
             catch (BadImageFormatException ex)
             {
@@ -704,6 +719,69 @@ namespace Ace.App.Services
             double dLon = (lon2 - lon1) * Math.PI / 180;
             double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) + Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) * Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
             return 2 * r * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        }
+
+        // =====================================================================
+        // Hardware Control Input → SimConnect
+        // =====================================================================
+
+        private bool _eventsRegistered;
+
+        public void RegisterControlEvents()
+        {
+            if (_simConnect == null || _eventsRegistered) return;
+
+            _simConnect.MapClientEventToSimEvent(SimEvents.THROTTLE1_SET, "THROTTLE1_AXIS_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.THROTTLE2_SET, "THROTTLE2_AXIS_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.FLAPS_SET, "FLAPS_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.SPOILERS_SET, "SPOILERS_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.AILERON_SET, "AILERON_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.ELEVATOR_SET, "ELEVATOR_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.RUDDER_SET, "RUDDER_SET");
+            _simConnect.MapClientEventToSimEvent(SimEvents.GEAR_TOGGLE, "GEAR_TOGGLE");
+            _simConnect.MapClientEventToSimEvent(SimEvents.AP_MASTER, "AP_MASTER");
+
+            _eventsRegistered = true;
+            _logger.Info("SimConnect control events registered");
+        }
+
+        /// <summary>
+        /// Send a control input event to MSFS.
+        /// Value range for axis events: -16383 to +16383 (SimConnect standard).
+        /// </summary>
+        public void SendControlEvent(SimEvents simEvent, int value = 0)
+        {
+            if (_simConnect == null || !_isConnected) return;
+
+            try
+            {
+                _simConnect.TransmitClientEvent(
+                    SimConnect.SIMCONNECT_OBJECT_ID_USER,
+                    simEvent,
+                    (uint)value,
+                    (Enum)default(SimEvents),
+                    SIMCONNECT_EVENT_FLAG.GROUPID_IS_PRIORITY);
+            }
+            catch (Exception ex)
+            {
+                _logger.Debug($"SimConnect: Failed to send event {simEvent}: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Maps a 0-4095 ACEPIT axis value to SimConnect axis range (-16383 to +16383).
+        /// </summary>
+        public static int MapAxisToSimConnect(ushort acepitValue)
+        {
+            return (int)((acepitValue / 4095.0) * 32766) - 16383;
+        }
+
+        /// <summary>
+        /// Maps a 0-4095 ACEPIT axis value to SimConnect 0-16383 range (for throttle etc.).
+        /// </summary>
+        public static int MapAxisToSimConnectPositive(ushort acepitValue)
+        {
+            return (int)((acepitValue / 4095.0) * 16383);
         }
 
         private FlightPhase DetermineFlightPhase(bool onGround, double groundSpeed, double verticalSpeed)
