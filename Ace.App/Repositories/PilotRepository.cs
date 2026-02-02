@@ -148,6 +148,14 @@ namespace Ace.App.Repositories
                 }
 
                 pilot.IsEmployed = false;
+
+                var assignments = db.AircraftPilotAssignments.Where(a => a.PilotId == pilotId).ToList();
+                if (assignments.Any())
+                {
+                    db.AircraftPilotAssignments.RemoveRange(assignments);
+                    _log.Info($"PilotRepository: Removed {assignments.Count} aircraft assignments for fired pilot {pilot.Name}");
+                }
+
                 db.SaveChanges();
                 _log.Info($"PilotRepository: Successfully fired pilot {pilot.Name}");
             }
@@ -209,14 +217,11 @@ namespace Ace.App.Repositories
                     throw new InvalidOperationException("Cannot delete the player pilot");
                 }
 
-                var assignedAircraft = db.Aircraft.Where(a => a.AssignedPilotId == pilotId).ToList();
-                if (assignedAircraft.Any())
+                var assignments = db.AircraftPilotAssignments.Where(a => a.PilotId == pilotId).ToList();
+                if (assignments.Any())
                 {
-                    _log.Warn($"PilotRepository: Pilot {pilot.Name} has {assignedAircraft.Count} assigned aircraft, unassigning them");
-                    foreach (var aircraft in assignedAircraft)
-                    {
-                        aircraft.AssignedPilotId = null;
-                    }
+                    _log.Warn($"PilotRepository: Pilot {pilot.Name} has {assignments.Count} aircraft assignments, removing them");
+                    db.AircraftPilotAssignments.RemoveRange(assignments);
                 }
 
                 db.Pilots.Remove(pilot);

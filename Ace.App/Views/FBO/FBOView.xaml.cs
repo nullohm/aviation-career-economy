@@ -37,6 +37,7 @@ namespace Ace.App.Views.FBO
         private readonly IFBORepository _fboRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
         private readonly IScheduledRouteRepository _routeRepository;
 
         private bool _fboListExpanded = true;
@@ -62,6 +63,7 @@ namespace Ace.App.Views.FBO
             IFBORepository fboRepository,
             IAircraftRepository aircraftRepository,
             IPilotRepository pilotRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository,
             IScheduledRouteRepository routeRepository)
         {
             InitializeComponent();
@@ -73,6 +75,7 @@ namespace Ace.App.Views.FBO
             _fboRepository = fboRepository ?? throw new ArgumentNullException(nameof(fboRepository));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
             _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
             _routeRepository = routeRepository ?? throw new ArgumentNullException(nameof(routeRepository));
             DataContext = _viewModel;
 
@@ -1129,7 +1132,8 @@ namespace Ace.App.Views.FBO
                 _logger,
                 _fboRepository,
                 _aircraftRepository,
-                _pilotRepository);
+                _pilotRepository,
+                _assignmentRepository);
             dialog.Owner = Window.GetWindow(this);
 
             if (dialog.ShowDialog() == true)
@@ -1150,7 +1154,8 @@ namespace Ace.App.Views.FBO
                 _routeRepository,
                 _fboRepository,
                 _aircraftRepository,
-                _pilotRepository);
+                _pilotRepository,
+                _assignmentRepository);
             dialog.Owner = Window.GetWindow(this);
 
             if (dialog.ShowDialog() == true)

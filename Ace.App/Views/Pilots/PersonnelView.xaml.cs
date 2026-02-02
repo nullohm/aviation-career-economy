@@ -22,6 +22,7 @@ namespace Ace.App.Views.Pilots
         private readonly ILicenseRepository _licenseRepository;
         private readonly ITypeRatingRepository _typeRatingRepository;
         private readonly IAircraftRepository _aircraftRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
         private readonly ITransactionRepository _transactionRepository;
         private PilotViewModel? _selectedPilot;
         private bool _listExpanded = true;
@@ -37,6 +38,7 @@ namespace Ace.App.Views.Pilots
             ILicenseRepository licenseRepository,
             ITypeRatingRepository typeRatingRepository,
             IAircraftRepository aircraftRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository,
             ITransactionRepository transactionRepository)
         {
             InitializeComponent();
@@ -49,6 +51,7 @@ namespace Ace.App.Views.Pilots
             _licenseRepository = licenseRepository ?? throw new ArgumentNullException(nameof(licenseRepository));
             _typeRatingRepository = typeRatingRepository ?? throw new ArgumentNullException(nameof(typeRatingRepository));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
             _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
             DataContext = _viewModel;
 
@@ -368,8 +371,7 @@ namespace Ace.App.Views.Pilots
 
             if (aircraft == null) return;
 
-            aircraft.AssignedPilotId = _selectedPilot.Id;
-            _aircraftRepository.UpdateAircraft(aircraft);
+            _assignmentRepository.AssignPilot(aircraft.Id, _selectedPilot.Id);
 
             _logger.Info($"PersonnelView: Assigned {_selectedPilot.Name} to {aircraft.Registration}");
 
@@ -385,8 +387,7 @@ namespace Ace.App.Views.Pilots
 
             if (aircraft == null) return;
 
-            aircraft.AssignedPilotId = null;
-            _aircraftRepository.UpdateAircraft(aircraft);
+            _assignmentRepository.UnassignPilot(_selectedPilot.Id);
 
             _logger.Info($"PersonnelView: Unassigned {_selectedPilot.Name} from {aircraft.Registration}");
 

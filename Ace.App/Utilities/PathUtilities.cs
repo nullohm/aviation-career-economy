@@ -91,15 +91,39 @@ namespace Ace.App.Utilities
             return Path.Combine(GetSavegamePilotImagesDirectory(), "myPilot.bmp");
         }
 
+        private static readonly string[] SupportedImageExtensions = { ".png", ".jpg", ".jpeg", ".bmp" };
+
         public static string GetPilotImagePath(string fileName)
         {
             if (string.IsNullOrEmpty(fileName))
                 return GetDefaultPilotImagePath();
 
             if (Path.IsPathRooted(fileName))
-                return fileName;
+                return ResolveImageWithAlternateExtensions(fileName);
 
-            return Path.Combine(GetSavegamePilotImagesDirectory(), fileName);
+            var fullPath = Path.Combine(GetSavegamePilotImagesDirectory(), fileName);
+            return ResolveImageWithAlternateExtensions(fullPath);
+        }
+
+        private static string ResolveImageWithAlternateExtensions(string path)
+        {
+            if (File.Exists(path))
+                return path;
+
+            var directory = Path.GetDirectoryName(path);
+            var nameWithoutExt = Path.GetFileNameWithoutExtension(path);
+
+            if (string.IsNullOrEmpty(directory) || string.IsNullOrEmpty(nameWithoutExt))
+                return path;
+
+            foreach (var ext in SupportedImageExtensions)
+            {
+                var candidate = Path.Combine(directory, nameWithoutExt + ext);
+                if (File.Exists(candidate))
+                    return candidate;
+            }
+
+            return path;
         }
 
         public static string GetDefaultAircraftImage(string sizeCategory)

@@ -6,6 +6,7 @@ using Ace.App.Commands;
 using Ace.App.Data;
 using Ace.App.Interfaces;
 using Ace.App.Models;
+using Ace.App.Helpers;
 using Ace.App.Services;
 
 namespace Ace.App.ViewModels
@@ -232,8 +233,12 @@ namespace Ace.App.ViewModels
             using var db = new AceDbContext();
             var catalogAircraft = db.AircraftCatalog.OrderBy(a => a.Manufacturer).ThenBy(a => a.Title).ToList();
 
+            var assignedAircraftIds = db.AircraftPilotAssignments
+                .Select(a => a.AircraftId)
+                .Distinct()
+                .ToList();
             var unassignedAircraftTypes = db.Aircraft
-                .Where(a => a.AssignedPilotId == null)
+                .Where(a => !assignedAircraftIds.Contains(a.Id))
                 .Select(a => a.Type)
                 .Distinct()
                 .ToList();
@@ -389,7 +394,8 @@ namespace Ace.App.ViewModels
 
                 CanAssignAircraft = true;
 
-                var assignedAircraft = db.Aircraft.FirstOrDefault(a => a.AssignedPilotId == _pilotId);
+                var assignment = db.AircraftPilotAssignments.FirstOrDefault(a => a.PilotId == _pilotId);
+                var assignedAircraft = assignment != null ? db.Aircraft.FirstOrDefault(a => a.Id == assignment.AircraftId) : null;
                 if (assignedAircraft != null)
                 {
                     HasAssignedAircraft = true;
@@ -423,9 +429,13 @@ namespace Ace.App.ViewModels
 
             _logger.Info($"PilotDetailViewModel: Pilot has {pilotTypeRatings.Count} type ratings");
 
+            var assignedAircraftIds = db.AircraftPilotAssignments
+                .Select(a => a.AircraftId)
+                .Distinct()
+                .ToList();
             var aircraft = db.Aircraft
                 .Where(a => a.AssignedFBOId != null &&
-                           a.AssignedPilotId == null &&
+                           !assignedAircraftIds.Contains(a.Id) &&
                            a.Status == AircraftStatus.Stationed)
                 .ToList();
 
@@ -435,82 +445,7 @@ namespace Ace.App.ViewModels
             {
                 var aircraftFullType = $"{ac.Type} {ac.Variant}".Trim();
 
-                var hasTypeRating = false;
-                foreach (var rating in pilotTypeRatings)
-                {
-                    var ratingNormalized = rating.Trim();
-                    var typeNormalized = ac.Type.Trim();
-
-                    _logger.Debug($"  Comparing rating '{ratingNormalized}' with aircraft type '{typeNormalized}'");
-
-                    if (ratingNormalized.Equals(typeNormalized, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _logger.Debug($"  -> MATCH: Exact match");
-                        hasTypeRating = true;
-                        break;
-                    }
-
-                    if (ratingNormalized.Contains(typeNormalized, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _logger.Debug($"  -> MATCH: Rating contains type");
-                        hasTypeRating = true;
-                        break;
-                    }
-
-                    if (typeNormalized.Contains(ratingNormalized, StringComparison.OrdinalIgnoreCase))
-                    {
-                        _logger.Debug($"  -> MATCH: Type contains rating");
-                        hasTypeRating = true;
-                        break;
-                    }
-
-                    if (ratingNormalized.EndsWith("Family", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var familyBase = ratingNormalized.Substring(0, ratingNormalized.Length - 6).Trim();
-                        if (typeNormalized.StartsWith(familyBase, StringComparison.OrdinalIgnoreCase))
-                        {
-                            _logger.Debug($"  -> MATCH: Family type rating '{familyBase}Family' covers aircraft type '{typeNormalized}'");
-                            hasTypeRating = true;
-                            break;
-                        }
-                    }
-
-                    var ratingTokens = ratingNormalized.Split(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries);
-                    var typeTokens = typeNormalized.Split(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries);
-
-                    _logger.Debug($"  Rating tokens: [{string.Join(", ", ratingTokens)}]");
-                    _logger.Debug($"  Type tokens: [{string.Join(", ", typeTokens)}]");
-
-                    var significantMatches = 0;
-                    foreach (var typeToken in typeTokens)
-                    {
-                        var isNumber = int.TryParse(typeToken, out _);
-                        if (typeToken.Length < 2 || (typeToken.Length < 3 && !isNumber))
-                            continue;
-
-                        foreach (var ratingToken in ratingTokens)
-                        {
-                            if (ratingToken.Equals(typeToken, StringComparison.OrdinalIgnoreCase) ||
-                                ratingToken.StartsWith(typeToken, StringComparison.OrdinalIgnoreCase) ||
-                                typeToken.StartsWith(ratingToken, StringComparison.OrdinalIgnoreCase))
-                            {
-                                _logger.Debug($"  Token match: '{typeToken}' <-> '{ratingToken}'");
-                                significantMatches++;
-                                break;
-                            }
-                        }
-                    }
-
-                    _logger.Debug($"  Significant matches: {significantMatches}");
-                    if (significantMatches >= 2 || (significantMatches >= 1 && (typeTokens.Any(t => t.Any(char.IsDigit)) || ratingTokens.Any(t => t.Any(char.IsDigit)))))
-                    {
-                        _logger.Debug($"  -> MATCH: Token-based match");
-                        hasTypeRating = true;
-                        break;
-                    }
-                }
-
-                if (!hasTypeRating)
+                if (!TypeRatingMatchHelper.HasMatchingTypeRating(ac.Type, pilotTypeRatings))
                 {
                     _logger.Debug($"PilotDetailViewModel: Skipping aircraft {ac.Registration} ({aircraftFullType}) - no type rating");
                     continue;
@@ -556,14 +491,20 @@ namespace Ace.App.ViewModels
                     return;
                 }
 
-                if (aircraft.AssignedPilotId != null)
+                var existingAssignment = db.AircraftPilotAssignments.FirstOrDefault(a => a.PilotId == _pilotId);
+                if (existingAssignment != null)
                 {
-                    ErrorOccurred?.Invoke(this, "Aircraft is already assigned to another pilot");
+                    ErrorOccurred?.Invoke(this, "Pilot is already assigned to an aircraft");
                     LoadAircraftAssignment();
                     return;
                 }
 
-                aircraft.AssignedPilotId = _pilotId;
+                db.AircraftPilotAssignments.Add(new AircraftPilotAssignment
+                {
+                    AircraftId = aircraft.Id,
+                    PilotId = _pilotId,
+                    AssignedDate = DateTime.Today
+                });
                 db.SaveChanges();
 
                 _logger.Info($"PilotDetailViewModel: Successfully assigned pilot to aircraft {SelectedAircraft.Registration}");
@@ -583,17 +524,18 @@ namespace Ace.App.ViewModels
                 _logger.Info($"PilotDetailViewModel: Unassigning pilot {_pilotId} from aircraft");
 
                 using var db = new AceDbContext();
-                var aircraft = db.Aircraft.FirstOrDefault(a => a.AssignedPilotId == _pilotId);
+                var pilotAssignment = db.AircraftPilotAssignments.FirstOrDefault(a => a.PilotId == _pilotId);
 
-                if (aircraft == null)
+                if (pilotAssignment == null)
                 {
                     ErrorOccurred?.Invoke(this, "No aircraft assigned to this pilot");
                     LoadAircraftAssignment();
                     return;
                 }
 
-                var registration = aircraft.Registration;
-                aircraft.AssignedPilotId = null;
+                var aircraft = db.Aircraft.FirstOrDefault(a => a.Id == pilotAssignment.AircraftId);
+                var registration = aircraft?.Registration ?? "Unknown";
+                db.AircraftPilotAssignments.Remove(pilotAssignment);
                 db.SaveChanges();
 
                 _logger.Info($"PilotDetailViewModel: Successfully unassigned pilot from aircraft {registration}");

@@ -28,6 +28,7 @@ namespace Ace.App.Views.Core
         private readonly IFBORepository _fboRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
         private readonly ISoundService _soundService;
         private readonly ISettingsService _settingsService;
         private string? _lastKnownFlightPlanId;
@@ -44,6 +45,7 @@ namespace Ace.App.Views.Core
             IFBORepository fboRepository,
             IAircraftRepository aircraftRepository,
             IPilotRepository pilotRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository,
             ISoundService soundService,
             ISettingsService settingsService)
         {
@@ -54,6 +56,7 @@ namespace Ace.App.Views.Core
             _fboRepository = fboRepository ?? throw new ArgumentNullException(nameof(fboRepository));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
             _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
             _soundService = soundService ?? throw new ArgumentNullException(nameof(soundService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
@@ -537,8 +540,9 @@ namespace Ace.App.Views.Core
 
                 var aircraftWithoutFBO = allAircraft.Count(a => a.AssignedFBOId == null);
 
-                var aircraftWithPilot = allAircraft.Where(a => a.AssignedPilotId != null).Select(a => a.AssignedPilotId).Distinct().ToList();
-                var pilotsWithoutAircraft = employedPilots.Count(p => !aircraftWithPilot.Contains(p.Id));
+                var allAssignments = _assignmentRepository.GetAllAssignments();
+                var assignedPilotIds = allAssignments.Select(a => a.PilotId).Distinct().ToHashSet();
+                var pilotsWithoutAircraft = employedPilots.Count(p => !assignedPilotIds.Contains(p.Id));
 
                 _viewData.FBOsWithoutAircraft = fbosWithoutAircraft;
                 _viewData.AircraftWithoutFBO = aircraftWithoutFBO;

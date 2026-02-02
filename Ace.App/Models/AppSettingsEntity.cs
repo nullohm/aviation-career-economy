@@ -130,6 +130,9 @@ namespace Ace.App.Models
 
         public bool AllowAllAircraftForFlightPlan { get; set; } = false;
 
+        public bool EnforceCrewRequirement { get; set; } = false;
+        public bool EnableMultiCrewShifts { get; set; } = false;
+
         public decimal ROIPercentSmall { get; set; } = 15m;
         public decimal ROIPercentMedium { get; set; } = 15m;
         public decimal ROIPercentMediumLarge { get; set; } = 15m;

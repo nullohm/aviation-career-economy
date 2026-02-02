@@ -386,6 +386,30 @@ namespace Ace.App.ViewModels
             _loggingService.Debug($"FlightPlanMapViewModel: Range circle updated for {_departureIcao} with range {aircraftRangeNM} NM");
         }
 
+        public void ZoomToRangeCircle(int aircraftRangeNM)
+        {
+            if (_map == null || string.IsNullOrEmpty(_departureIcao)) return;
+
+            var depAirport = _airportDatabase.GetAirport(_departureIcao);
+            if (depAirport == null) return;
+
+            const double EarthRadiusNM = 3440.065;
+            double angularDist = aircraftRangeNM / EarthRadiusNM;
+            double latRad = depAirport.Latitude * Math.PI / 180.0;
+
+            double minLat = depAirport.Latitude - angularDist * 180.0 / Math.PI;
+            double maxLat = depAirport.Latitude + angularDist * 180.0 / Math.PI;
+            double lonSpan = Math.Asin(Math.Sin(angularDist) / Math.Cos(latRad)) * 180.0 / Math.PI;
+            double minLon = depAirport.Longitude - lonSpan;
+            double maxLon = depAirport.Longitude + lonSpan;
+
+            var min = SphericalMercator.FromLonLat(minLon, minLat);
+            var max = SphericalMercator.FromLonLat(maxLon, maxLat);
+
+            var extent = new MRect(min.x, min.y, max.x, max.y);
+            _map.Navigator.ZoomToBox(extent, MBoxFit.Fit);
+        }
+
         private Polygon CreateGeodesicCircle(double centerLatDeg, double centerLonDeg, double radiusNM, int segments)
         {
             const double EarthRadiusNM = 3440.065;

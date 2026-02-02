@@ -14,6 +14,7 @@ namespace Ace.App.Services
         private readonly ILoanRepository _loanRepository;
         private readonly IFBORepository _fboRepository;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
         private readonly List<Notification> _notifications = new();
 
         public event Action? NotificationsChanged;
@@ -24,7 +25,8 @@ namespace Ace.App.Services
             IMaintenanceService maintenanceService,
             ILoanRepository loanRepository,
             IFBORepository fboRepository,
-            IPilotRepository pilotRepository)
+            IPilotRepository pilotRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
@@ -32,6 +34,7 @@ namespace Ace.App.Services
             _loanRepository = loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
             _fboRepository = fboRepository ?? throw new ArgumentNullException(nameof(fboRepository));
             _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
         }
 
         public List<Notification> GetAllNotifications()
@@ -163,7 +166,8 @@ namespace Ace.App.Services
 
             var fbosWithoutAircraft = fbos.Where(f => !aircraft.Any(a => a.AssignedFBOId == f.Id && a.Status != AircraftStatus.Maintenance)).ToList();
             var aircraftWithoutFBO = aircraft.Where(a => !a.AssignedFBOId.HasValue && a.Status != AircraftStatus.Maintenance).ToList();
-            var pilotsWithoutAircraft = pilots.Where(p => !aircraft.Any(a => a.AssignedPilotId == p.Id)).ToList();
+            var assignedPilotIds = _assignmentRepository.GetAllAssignments().Select(a => a.PilotId).ToHashSet();
+            var pilotsWithoutAircraft = pilots.Where(p => !assignedPilotIds.Contains(p.Id)).ToList();
 
             if (fbosWithoutAircraft.Count > 0)
             {

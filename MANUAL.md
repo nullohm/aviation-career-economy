@@ -7,12 +7,38 @@
 ## Contents
 
 | | | |
-|---|---|---|
-| [Getting Started](#getting-started) | [Aircraft Management](#aircraft-management) | [FBO](#fbo) |
-| [Flight Planning](#flight-planning) | [Scheduled Routes](#scheduled-routes) | [Pilot Management](#pilot-management) |
-| [Finance System](#finance-system) | [SimConnect Integration](#simconnect-integration) | [Achievements](#achievements) |
-| [Statistics](#statistics) | [Settings](#settings) | [Tips for Beginners](#tips-for-beginners) |
-| [Developer Tools](#developer-tools) | [Files and Customization](#files-and-customization) | [Sound System](#sound-system) |
+|:---|:---|:---|
+| **[Getting Started](#getting-started)** | **[Aircraft Management](#aircraft-management)** | **[FBO](#fbo)** |
+| [Prerequisites](#prerequisites) | [Hangar](#hangar) | [Map-based Overview](#map-based-overview) |
+| [Game Start](#game-start) | [Status Color Coding](#status-color-coding) | [Distance Measure Tool](#distance-measure-tool) |
+| | [Aircraft Market](#aircraft-market) | [FBO Types](#fbo-types) |
+| | [Maintenance](#maintenance) | [Terminal Sizes](#terminal-sizes) |
+| | | [Services](#services) |
+| | | [Passive Income](#passive-income) |
+| | | [Network Bonus](#network-bonus) |
+| **[Flight Planning](#flight-planning)** | **[Scheduled Routes](#scheduled-routes)** | **[Pilot Management](#pilot-management)** |
+| [Step-by-Step Guide](#step-by-step-guide) | [How It Works](#how-it-works) | [Rank System](#rank-system) |
+| [Route Info Badge](#route-info-badge) | [Routes on the Map](#routes-on-the-map) | [Type Ratings](#type-ratings) |
+| [Suggested Routes](#suggested-routes) | [Earnings Bonus](#earnings-bonus) | [Your Player Pilot](#your-player-pilot) |
+| [Interactive Map](#interactive-map) | [Slot Limits](#slot-limits) | |
+| [Range Circle](#range-circle) | [FBO Type Restrictions](#fbo-type-restrictions) | |
+| [Airspace Overlay](#airspace-overlay) | [Aircraft Sizes & Terminal Compatibility](#aircraft-sizes--terminal-compatibility) | |
+| [Map Attribution](#map-attribution) | [Troubleshooting: "No Aircraft"](#troubleshooting-no-aircraft-in-selection) | |
+| [Completing a Flight](#completing-a-flight) | | |
+| **[Finance System](#finance-system)** | **[SimConnect Integration](#simconnect-integration)** | **[Achievements](#achievements)** |
+| [Revenue Formula](#revenue-formula) | [Flight Phases](#flight-phases) | [Categories](#categories) |
+| [Cost Breakdown](#cost-breakdown) | [Dashboard Display](#dashboard-display) | [Tiers](#tiers) |
+| [Loans](#loans) | [Anti-Cheat](#anti-cheat) | |
+| [Monthly Billing](#monthly-billing) | | |
+| **[Statistics](#statistics)** | **[Settings](#settings)** | **[Tips for Beginners](#tips-for-beginners)** |
+| [Available Tabs](#available-tabs) | [Categories](#categories-1) | [Growth Benchmarks](#growth-benchmarks) |
+| [Flight Map Legend](#flight-map-legend) | [Aircraft Load Factor](#aircraft-load-factor) | |
+| **[Developer Tools](#developer-tools)** | **[Files and Customization](#files-and-customization)** | **[Sound System](#sound-system)** |
+| [Funds](#funds) | [Important Paths](#important-paths) | [Sound Events](#sound-events) |
+| [Simulation](#simulation) | [Little Navmap Setup](#little-navmap-setup) | [Custom Sounds](#custom-sounds) |
+| | **[Pilot Customization](#pilot-customization)** | |
+| | [Template System](#template-system) | |
+| | [Pilot Fields](#pilot-fields) | |
 
 ---
 
@@ -336,6 +362,24 @@ Hire pilots to fly your aircraft. Pilots gain experience and advance in ranks.
 
 Pilots can only fly aircraft for which they have a type rating. More experienced pilots have more type ratings.
 
+### Multi-Crew System
+
+Aircraft can have multiple pilots assigned simultaneously. The Hangar detail panel shows a "Crew" section where you can assign and remove pilots.
+
+**Crew Requirement** (Settings → Pilots): When enabled, aircraft need at least the minimum crew count (defined per aircraft type) to generate passive income. If crew is insufficient, the aircraft earns nothing.
+
+**Multi-Crew Shift Operations** (Settings → Pilots): When enabled, assigning multiple crews to one aircraft simulates shift operations, increasing daily flight hours:
+
+```
+Effective Hours = min((Assigned Pilots / Required Crew) × Hours per Day, 24)
+```
+
+Example: A Boeing 737 (Crew: 2) with 4 pilots assigned and 8h/day setting → (4/2) × 8 = 16 hours/day.
+
+The crew status badge in the aircraft list shows the current assignment (e.g., "Crew 2/2") with color coding: green when complete, orange when understaffed.
+
+**Utilization Badge:** Each aircraft with assigned pilots shows a utilization percentage badge indicating how much of the 24-hour day is covered by flight operations. Color coded: green (90%+), blue (50-89%), orange (below 50%).
+
 ### Your Player Pilot
 
 The first pilot is your player character (cannot be fired).
@@ -500,7 +544,7 @@ Almost all economic parameters are adjustable.
 | **Economy** | Revenue rates, load factors, fuel costs, bonuses |
 | **FBO** | Rents, terminal costs, service costs |
 | **Aircraft** | Maintenance, insurance, depreciation |
-| **Pilots** | Salary, training, rank system |
+| **Pilots** | Salary, training, rank system, crew requirements |
 | **Game** | Achievement rewards, Developer Tools |
 
 ### Aircraft Load Factor
@@ -605,7 +649,7 @@ Database location:
 | EarnedLicenses | Array of IDs |
 | EarnedTyperatings | Array of names |
 
-**Supported Images:** BMP, JPG, PNG
+**Supported Images:** BMP, JPG, PNG (file extension is auto-detected, so the database entry doesn't need to match the actual file extension)
 
 > **Warning:** Never remove the first pilot entry!
 

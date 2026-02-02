@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Ace.App.Data;
@@ -82,7 +83,7 @@ namespace Ace.App.Services
 
         public DailyPassiveEarnings CalculateDailyPassiveEarnings(Aircraft aircraft, double dailyFlightHours)
         {
-            return CalculateDailyPassiveEarnings(aircraft, dailyFlightHours, null);
+            return CalculateDailyPassiveEarnings(aircraft, dailyFlightHours, (Pilot?)null);
         }
 
         public DailyPassiveEarnings CalculateDailyPassiveEarnings(Aircraft aircraft, double dailyFlightHours, Pilot? pilot)
@@ -136,6 +137,56 @@ namespace Ace.App.Services
             _loggingService.Debug($"PricingService: Daily passive earnings for {aircraft.Registration} (Pilot: {pilotInfo}): " +
                 $"{dailyFlightHours:F1}h, {dailyDistance:F0}NM, {effectivePassengers}PAX (load: {settings.PassengerLoadFactorPercent}%) - " +
                 $"Revenue: €{earnings.Revenue:N2}, Costs: €{earnings.TotalCost:N2} (Crew: €{earnings.CrewCost:N2}, FBO: €{earnings.FBOCost:N2}){serviceBonusInfo}, Profit: €{earnings.Profit:N2}");
+
+            return earnings;
+        }
+
+        public DailyPassiveEarnings CalculateDailyPassiveEarnings(Aircraft aircraft, double dailyFlightHours, List<Pilot> assignedPilots)
+        {
+            var settings = _settingsService.CurrentSettings;
+            double dailyDistance = aircraft.CruiseSpeedKts * dailyFlightHours;
+
+            int effectivePassengers = (int)(aircraft.MaxPassengers * (settings.PassengerLoadFactorPercent / 100m));
+            double effectiveCargoKg = aircraft.MaxCargoKg * (double)(settings.CargoLoadFactorPercent / 100m);
+
+            var earnings = new DailyPassiveEarnings
+            {
+                DailyFlightHours = dailyFlightHours,
+                DailyDistanceNM = dailyDistance,
+                Passengers = effectivePassengers
+            };
+
+            earnings.FuelCost = CalculateFuelCost(aircraft, dailyFlightHours, settings);
+            earnings.MaintenanceCost = CalculateMaintenanceCost(aircraft, dailyFlightHours, settings);
+            earnings.DepreciationCost = CalculateDailyDepreciation(aircraft, settings);
+            earnings.InsuranceCost = CalculateDailyInsurance(aircraft, settings);
+
+            earnings.CrewCost = assignedPilots
+                .Where(p => !p.IsPlayer && p.SalaryPerMonth > 0)
+                .Sum(p => p.SalaryPerMonth / 30m);
+
+            decimal baseCosts = earnings.FuelCost + earnings.MaintenanceCost + earnings.DepreciationCost +
+                earnings.InsuranceCost + earnings.CrewCost;
+            earnings.FBOCost = baseCosts * settings.FBOCostFactor;
+
+            decimal roiPerHour = CalculateROIPerFlightHour(aircraft.PurchasePrice, aircraft.MaxPassengers, aircraft.IsOldtimer);
+            decimal dailyROI = roiPerHour * (decimal)dailyFlightHours;
+
+            decimal paxRate = GetRateForAircraftSize(aircraft.MaxPassengers);
+            decimal paxNmRevenue = effectivePassengers * (decimal)dailyDistance * paxRate;
+
+            decimal cargoRate = GetCargoRateForAircraftSize(aircraft.MaxPassengers);
+            decimal cargoNmRevenue = (decimal)effectiveCargoKg * (decimal)dailyDistance * cargoRate;
+
+            earnings.Revenue = earnings.TotalCost + dailyROI + paxNmRevenue + cargoNmRevenue;
+
+            earnings.ServiceBonusAmount = CalculateRouteServiceBonus(aircraft, dailyFlightHours, settings);
+
+            var pilotNames = string.Join(", ", assignedPilots.Select(p => p.IsPlayer ? "Player" : p.Name));
+            var serviceBonusInfo = earnings.ServiceBonusAmount > 0 ? $", ServiceBonus: €{earnings.ServiceBonusAmount:N2}" : "";
+            _loggingService.Debug($"PricingService: Daily passive earnings for {aircraft.Registration} (Pilots: {pilotNames}): " +
+                $"{dailyFlightHours:F1}h, {dailyDistance:F0}NM, {effectivePassengers}PAX - " +
+                $"Revenue: €{earnings.Revenue:N2}, Costs: €{earnings.TotalCost:N2} (Crew: €{earnings.CrewCost:N2}){serviceBonusInfo}, Profit: €{earnings.Profit:N2}");
 
             return earnings;
         }

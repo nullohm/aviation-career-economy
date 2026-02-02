@@ -19,6 +19,7 @@ namespace Ace.App.ViewModels
         private readonly IFinanceService _financeService;
         private readonly IAchievementService _achievementService;
         private readonly ISettingsService _settingsService;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
 
         public ObservableCollection<PilotViewModel> AvailablePilots { get; } = new();
         public ObservableCollection<PilotViewModel> EmployedPilots { get; } = new();
@@ -71,7 +72,8 @@ namespace Ace.App.ViewModels
             ILoggingService logger,
             IFinanceService financeService,
             IAchievementService achievementService,
-            ISettingsService settingsService)
+            ISettingsService settingsService,
+            IAircraftPilotAssignmentRepository assignmentRepository)
         {
             _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
@@ -80,6 +82,7 @@ namespace Ace.App.ViewModels
             _financeService = financeService ?? throw new ArgumentNullException(nameof(financeService));
             _achievementService = achievementService ?? throw new ArgumentNullException(nameof(achievementService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
 
             HirePilotCommand = new RelayCommand<PilotViewModel>(OnHirePilot, CanHirePilot);
             FirePilotCommand = new RelayCommand<PilotViewModel>(OnFirePilot, CanFirePilot);
@@ -135,15 +138,16 @@ namespace Ace.App.ViewModels
         {
             try
             {
-                var aircraftWithPilots = _aircraftRepository.GetAllAircraft()
-                    .Where(a => a.AssignedPilotId != null)
-                    .ToList();
-
+                var allAssignments = _assignmentRepository.GetAllAssignments();
+                var allAircraft = _aircraftRepository.GetAllAircraft();
                 var fbos = _fboRepository.GetAllFBOs();
 
                 foreach (var pilotVm in EmployedPilots)
                 {
-                    var assignedAircraft = aircraftWithPilots.FirstOrDefault(a => a.AssignedPilotId == pilotVm.Id);
+                    var assignment = allAssignments.FirstOrDefault(a => a.PilotId == pilotVm.Id);
+                    var assignedAircraft = assignment != null
+                        ? allAircraft.FirstOrDefault(a => a.Id == assignment.AircraftId)
+                        : null;
                     if (assignedAircraft != null)
                     {
                         var fbo = fbos.FirstOrDefault(f => f.Id == assignedAircraft.AssignedFBOId);
@@ -153,7 +157,7 @@ namespace Ace.App.ViewModels
                     }
                 }
 
-                _logger.Info($"PersonnelViewModel: Loaded statuses for {aircraftWithPilots.Count} assigned pilots");
+                _logger.Info($"PersonnelViewModel: Loaded statuses for {allAssignments.Count} assigned pilots");
             }
             catch (Exception ex)
             {

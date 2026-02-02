@@ -24,6 +24,7 @@ namespace Ace.App.Data
         public DbSet<MonthlyBillingDetail> MonthlyBillingDetails { get; set; }
         public DbSet<ScheduledRoute> ScheduledRoutes { get; set; }
         public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<AircraftPilotAssignment> AircraftPilotAssignments { get; set; }
 
 
         public AceDbContext() : base()
@@ -63,6 +64,11 @@ namespace Ace.App.Data
             modelBuilder.Entity<Achievement>().HasKey(a => a.Id);
             modelBuilder.Entity<Achievement>()
                 .HasIndex(a => a.Key)
+                .IsUnique();
+
+            modelBuilder.Entity<AircraftPilotAssignment>().HasKey(a => a.Id);
+            modelBuilder.Entity<AircraftPilotAssignment>()
+                .HasIndex(a => a.PilotId)
                 .IsUnique();
         }
 

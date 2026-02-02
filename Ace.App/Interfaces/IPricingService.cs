@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Ace.App.Models;
 
 namespace Ace.App.Interfaces
@@ -11,6 +12,8 @@ namespace Ace.App.Interfaces
         DailyPassiveEarnings CalculateDailyPassiveEarnings(Aircraft aircraft, double dailyFlightHours);
 
         DailyPassiveEarnings CalculateDailyPassiveEarnings(Aircraft aircraft, double dailyFlightHours, Pilot? pilot);
+
+        DailyPassiveEarnings CalculateDailyPassiveEarnings(Aircraft aircraft, double dailyFlightHours, List<Pilot> assignedPilots);
 
         decimal CalculateProfitPerHour(AircraftCatalogEntry catalogEntry);
 

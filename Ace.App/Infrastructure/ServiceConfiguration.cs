@@ -36,6 +36,7 @@ namespace Ace.App.Infrastructure
             services.AddScoped<ITypeRatingRepository, TypeRatingRepository>();
             services.AddScoped<IDailyEarningsRepository, DailyEarningsRepository>();
             services.AddScoped<IMonthlyBillingRepository, MonthlyBillingRepository>();
+            services.AddScoped<IAircraftPilotAssignmentRepository, AircraftPilotAssignmentRepository>();
 
 
             services.AddSingleton<ILoggingService, LoggingService>();

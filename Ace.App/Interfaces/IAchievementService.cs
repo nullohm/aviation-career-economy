@@ -29,5 +29,9 @@ namespace Ace.App.Interfaces
         int GetTotalUnlocked();
         int GetTotalAchievements();
         double GetCompletionPercent();
+
+        Dictionary<string, decimal> GetDefaultRewards();
+        void ResetRewardsToDefaults();
+        void UpdateReward(string key, decimal reward);
     }
 }

@@ -137,9 +137,58 @@ namespace Ace.App.Services
 
             AddColumnIfNotExists(connection, "AircraftCatalog", "IsFavorite", "INTEGER DEFAULT 0");
 
+            CreateTableIfNotExists(connection, "AircraftPilotAssignments", @"
+                CREATE TABLE AircraftPilotAssignments (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    AircraftId INTEGER NOT NULL,
+                    PilotId INTEGER NOT NULL,
+                    AssignedDate TEXT NOT NULL DEFAULT '2026-01-01',
+                    UNIQUE(PilotId)
+                )");
+
+            AddColumnIfNotExists(connection, "Settings", "EnforceCrewRequirement", "INTEGER DEFAULT 0");
+            AddColumnIfNotExists(connection, "Settings", "EnableMultiCrewShifts", "INTEGER DEFAULT 0");
+
+            MigrateAssignedPilotToJunction(connection);
+
             MigrateBalanceToAssetsAchievements(connection);
 
             _logger.Database("Schema update complete");
+        }
+
+        private void MigrateAssignedPilotToJunction(System.Data.Common.DbConnection connection)
+        {
+            try
+            {
+                using var checkCommand = connection.CreateCommand();
+                checkCommand.CommandText = "SELECT COUNT(*) FROM Aircraft WHERE AssignedPilotId IS NOT NULL";
+                var count = Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                if (count == 0)
+                {
+                    _logger.Database("No AssignedPilotId values to migrate to junction table");
+                    return;
+                }
+
+                using var migrateCommand = connection.CreateCommand();
+                migrateCommand.CommandText = @"
+                    INSERT OR IGNORE INTO AircraftPilotAssignments (AircraftId, PilotId, AssignedDate)
+                    SELECT Id, AssignedPilotId, date('now')
+                    FROM Aircraft
+                    WHERE AssignedPilotId IS NOT NULL
+                    AND AssignedPilotId NOT IN (SELECT PilotId FROM AircraftPilotAssignments)";
+                var migrated = migrateCommand.ExecuteNonQuery();
+
+                using var clearCommand = connection.CreateCommand();
+                clearCommand.CommandText = "UPDATE Aircraft SET AssignedPilotId = NULL WHERE AssignedPilotId IS NOT NULL";
+                clearCommand.ExecuteNonQuery();
+
+                _logger.Database($"Migrated {migrated} pilot assignments from AssignedPilotId to AircraftPilotAssignments junction table");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"MigrateAssignedPilotToJunction: {ex.Message}");
+            }
         }
 
         private void MigrateBalanceToAssetsAchievements(System.Data.Common.DbConnection connection)

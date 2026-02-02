@@ -42,12 +42,15 @@ namespace Ace.App.DevTools
             using var db = new AceDbContext();
             var settings = db.Settings.AsNoTracking().FirstOrDefault();
             var date = settings?.LastDailyEarningsDate;
-            var assignedCount = db.Aircraft.AsNoTracking().Count(a => a.AssignedPilotId != null);
             var totalAircraft = db.Aircraft.AsNoTracking().Count();
 
+            var assignedAircraftIds = db.AircraftPilotAssignments.AsNoTracking()
+                .Select(a => a.AircraftId).Distinct().ToHashSet();
+            var assignedCount = assignedAircraftIds.Count;
+
             var assignedList = db.Aircraft.AsNoTracking()
-                .Where(a => a.AssignedPilotId != null)
-                .Select(a => new { a.Registration, a.AssignedPilotId, a.MaxPassengers, a.CruiseSpeedKts })
+                .Where(a => assignedAircraftIds.Contains(a.Id))
+                .Select(a => new { a.Registration, a.MaxPassengers, a.CruiseSpeedKts })
                 .ToList();
 
             var assignedInfo = assignedList.Any()

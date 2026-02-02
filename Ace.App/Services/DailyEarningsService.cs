@@ -72,8 +72,11 @@ namespace Ace.App.Services
                         return;
                     }
 
+                    var allAssignments = db.AircraftPilotAssignments.ToList();
+                    var assignedAircraftIds = allAssignments.Select(a => a.AircraftId).Distinct().ToList();
+
                     var assignedAircraft = db.Aircraft
-                        .Where(a => a.AssignedPilotId != null && a.Status != AircraftStatus.Maintenance)
+                        .Where(a => assignedAircraftIds.Contains(a.Id) && a.Status != AircraftStatus.Maintenance)
                         .ToList();
 
                     if (!assignedAircraft.Any())
@@ -85,8 +88,12 @@ namespace Ace.App.Services
                     }
 
                     var pilots = db.Pilots.ToList();
+                    var catalogEntries = db.AircraftCatalog.ToList();
+                    var enforceCrewReq = settings.EnforceCrewRequirement;
+                    var multiCrewShifts = settings.EnableMultiCrewShifts;
+
                     var daysToProcess = (int)(today - lastEarningsDate.Value).TotalDays;
-                    _loggingService.Info($"DailyEarningsService: Processing {daysToProcess} day(s) for {assignedAircraft.Count} aircraft");
+                    _loggingService.Info($"DailyEarningsService: Processing {daysToProcess} day(s) for {assignedAircraft.Count} aircraft (CrewReq={enforceCrewReq}, MultiCrew={multiCrewShifts})");
 
                     decimal totalEarnings = 0m;
 
@@ -100,20 +107,46 @@ namespace Ace.App.Services
 
                         foreach (var aircraft in assignedAircraft)
                         {
-                            var pilot = pilots.FirstOrDefault(p => p.Id == aircraft.AssignedPilotId);
-                            var passiveEarnings = _pricingService.CalculateDailyPassiveEarnings(aircraft, dailyFlightHours, pilot);
+                            var aircraftAssignments = allAssignments.Where(a => a.AircraftId == aircraft.Id).ToList();
+                            var assignedPilots = aircraftAssignments
+                                .Select(a => pilots.FirstOrDefault(p => p.Id == a.PilotId))
+                                .Where(p => p != null)
+                                .ToList()!;
 
-                            var pilotName = pilot?.Name ?? "Unknown";
+                            if (!assignedPilots.Any()) continue;
 
-                            // Create detail entry for this aircraft
+                            var catalogEntry = catalogEntries.FirstOrDefault(c =>
+                                c.Title == aircraft.Variant ||
+                                c.Type == aircraft.Variant);
+                            var requiredCrew = catalogEntry?.CrewCount ?? 1;
+                            if (requiredCrew < 1) requiredCrew = 1;
+
+                            if (enforceCrewReq && assignedPilots.Count < requiredCrew)
+                            {
+                                _loggingService.Debug($"DailyEarningsService: {aircraft.Registration} skipped - crew {assignedPilots.Count}/{requiredCrew} insufficient");
+                                continue;
+                            }
+
+                            var effectiveFlightHours = dailyFlightHours;
+                            if (multiCrewShifts && assignedPilots.Count > requiredCrew)
+                            {
+                                effectiveFlightHours = Math.Min(
+                                    ((double)assignedPilots.Count / requiredCrew) * dailyFlightHours,
+                                    24.0);
+                            }
+
+                            var passiveEarnings = _pricingService.CalculateDailyPassiveEarnings(aircraft, effectiveFlightHours, assignedPilots!);
+
+                            var pilotNames = string.Join(", ", assignedPilots.Select(p => p!.Name));
+
                             var detail = new DailyEarningsDetail
                             {
                                 Date = earningsDate,
                                 AircraftId = aircraft.Id,
                                 AircraftRegistration = aircraft.Registration,
                                 AircraftType = aircraft.Type,
-                                PilotName = pilotName,
-                                FlightHours = dailyFlightHours,
+                                PilotName = pilotNames,
+                                FlightHours = effectiveFlightHours,
                                 DistanceNM = passiveEarnings.DailyDistanceNM,
                                 Revenue = passiveEarnings.Revenue,
                                 FuelCost = passiveEarnings.FuelCost,
@@ -130,19 +163,19 @@ namespace Ace.App.Services
                             dailyTotalCosts += passiveEarnings.TotalCost;
                             totalEarnings += passiveEarnings.Profit;
 
-                            // Update aircraft state
-                            aircraft.TotalFlightHours += dailyFlightHours;
-                            aircraft.HoursSinceLastMaintenance += dailyFlightHours;
+                            aircraft.TotalFlightHours += effectiveFlightHours;
+                            aircraft.HoursSinceLastMaintenance += effectiveFlightHours;
                             ApplyDailyDepreciation(aircraft, settings);
 
-                            // Update pilot flight hours
-                            if (pilot != null)
+                            var hoursPerPilot = effectiveFlightHours / assignedPilots.Count;
+                            var distancePerPilot = passiveEarnings.DailyDistanceNM / assignedPilots.Count;
+                            foreach (var pilot in assignedPilots)
                             {
-                                pilot.TotalFlightHours += dailyFlightHours;
-                                pilot.TotalDistanceNM += passiveEarnings.DailyDistanceNM;
+                                pilot!.TotalFlightHours += hoursPerPilot;
+                                pilot.TotalDistanceNM += distancePerPilot;
                             }
 
-                            _loggingService.Debug($"DailyEarningsService: {earningsDate:yyyy-MM-dd} - {aircraft.Registration}: " +
+                            _loggingService.Debug($"DailyEarningsService: {earningsDate:yyyy-MM-dd} - {aircraft.Registration} ({assignedPilots.Count} pilots, {effectiveFlightHours:F1}h): " +
                                 $"Revenue €{passiveEarnings.Revenue:N2}, Costs €{passiveEarnings.TotalCost:N2}, Profit €{passiveEarnings.Profit:N2}");
                         }
 

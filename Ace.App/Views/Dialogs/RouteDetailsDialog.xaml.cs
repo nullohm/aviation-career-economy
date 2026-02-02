@@ -16,6 +16,7 @@ namespace Ace.App.Views.Dialogs
         private readonly IFBORepository _fboRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
 
         private ScheduledRoute? _route;
         private Models.FBO? _originFbo;
@@ -30,7 +31,8 @@ namespace Ace.App.Views.Dialogs
             IScheduledRouteRepository routeRepository,
             IFBORepository fboRepository,
             IAircraftRepository aircraftRepository,
-            IPilotRepository pilotRepository)
+            IPilotRepository pilotRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository)
         {
             InitializeComponent();
 
@@ -42,6 +44,7 @@ namespace Ace.App.Views.Dialogs
             _fboRepository = fboRepository;
             _aircraftRepository = aircraftRepository;
             _pilotRepository = pilotRepository;
+            _assignmentRepository = assignmentRepository;
 
             LoadData();
         }
@@ -72,9 +75,8 @@ namespace Ace.App.Views.Dialogs
             if (_route.AssignedAircraftId.HasValue)
             {
                 var aircraft = _aircraftRepository.GetAircraftById(_route.AssignedAircraftId.Value);
-                var pilot = aircraft?.AssignedPilotId.HasValue == true
-                    ? _pilotRepository.GetPilotById(aircraft.AssignedPilotId.Value)
-                    : null;
+                var pilotAssignment = aircraft != null ? _assignmentRepository.GetAssignmentsByAircraftId(aircraft.Id).FirstOrDefault() : null;
+                var pilot = pilotAssignment != null ? _pilotRepository.GetPilotById(pilotAssignment.PilotId) : null;
 
                 TxtAircraftReg.Text = $"{aircraft?.Registration} ({aircraft?.Type})";
                 TxtPilotName.Text = pilot?.Name ?? "Unknown";
@@ -107,7 +109,8 @@ namespace Ace.App.Views.Dialogs
                 .Where(a => !assignedAircraftIds.Contains(a.Id))
                 .Select(a =>
                 {
-                    var pilot = a.AssignedPilotId.HasValue ? _pilotRepository.GetPilotById(a.AssignedPilotId.Value) : null;
+                    var pilotAssign = _assignmentRepository.GetAssignmentsByAircraftId(a.Id).FirstOrDefault();
+                    var pilot = pilotAssign != null ? _pilotRepository.GetPilotById(pilotAssign.PilotId) : null;
                     var fbo = a.AssignedFBOId.HasValue ? _fboRepository.GetFBOById(a.AssignedFBOId.Value) : null;
                     var fboIcao = fbo?.ICAO ?? "?";
                     return new AircraftOption

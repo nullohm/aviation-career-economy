@@ -17,6 +17,7 @@ namespace Ace.App.Views.Dialogs
         private readonly IFBORepository _fboRepository;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
 
         private List<FBOOption> _availableFBOs = new();
         private List<AircraftOption> _availableAircraft = new();
@@ -29,7 +30,8 @@ namespace Ace.App.Views.Dialogs
             ILoggingService logger,
             IFBORepository fboRepository,
             IAircraftRepository aircraftRepository,
-            IPilotRepository pilotRepository)
+            IPilotRepository pilotRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository)
         {
             InitializeComponent();
 
@@ -41,6 +43,7 @@ namespace Ace.App.Views.Dialogs
             _fboRepository = fboRepository;
             _aircraftRepository = aircraftRepository;
             _pilotRepository = pilotRepository;
+            _assignmentRepository = assignmentRepository;
 
             LoadData();
         }
@@ -152,7 +155,8 @@ namespace Ace.App.Views.Dialogs
                 .Where(a => routeDistance <= 0 || a.MaxRangeNM >= routeDistance)
                 .Select(a =>
                 {
-                    var pilot = a.AssignedPilotId.HasValue ? _pilotRepository.GetPilotById(a.AssignedPilotId.Value) : null;
+                    var pilotAssign = _assignmentRepository.GetAssignmentsByAircraftId(a.Id).FirstOrDefault();
+                    var pilot = pilotAssign != null ? _pilotRepository.GetPilotById(pilotAssign.PilotId) : null;
                     var fbo = a.AssignedFBOId.HasValue ? _fboRepository.GetFBOById(a.AssignedFBOId.Value) : null;
                     var fboIcao = fbo?.ICAO ?? "?";
                     return new AircraftOption

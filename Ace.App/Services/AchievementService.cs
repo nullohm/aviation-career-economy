@@ -11,7 +11,6 @@ namespace Ace.App.Services
     {
         private readonly ILoggingService _logger;
         private readonly IFinanceService _financeService;
-        private readonly ISettingsService _settingsService;
         private readonly ISoundService _soundService;
         private readonly IPersistenceService _persistenceService;
         private readonly IPilotRepository _pilotRepository;
@@ -79,7 +78,6 @@ namespace Ace.App.Services
         public AchievementService(
             ILoggingService logger,
             IFinanceService financeService,
-            ISettingsService settingsService,
             ISoundService soundService,
             IPersistenceService persistenceService,
             IPilotRepository pilotRepository,
@@ -87,7 +85,6 @@ namespace Ace.App.Services
         {
             _logger = logger;
             _financeService = financeService;
-            _settingsService = settingsService;
             _soundService = soundService;
             _persistenceService = persistenceService;
             _pilotRepository = pilotRepository;
@@ -219,10 +216,8 @@ namespace Ace.App.Services
 
             if (achievement.Reward.HasValue && achievement.Reward.Value > 0)
             {
-                var multiplier = _settingsService.CurrentSettings.AchievementRewardMultiplier;
-                var adjustedReward = achievement.Reward.Value * multiplier;
-                _financeService.AddEarnings(adjustedReward, $"Achievement Bonus: {achievement.Title}");
-                _logger.Debug($"Achievement reward: €{achievement.Reward.Value:N0} x {multiplier} = €{adjustedReward:N0}");
+                _financeService.AddEarnings(achievement.Reward.Value, $"Achievement Bonus: {achievement.Title}");
+                _logger.Debug($"Achievement reward: €{achievement.Reward.Value:N0}");
             }
 
             _soundService.PlayAchievementUnlocked();
@@ -400,6 +395,55 @@ namespace Ace.App.Services
             if (value > int.MaxValue) return int.MaxValue;
             if (value < int.MinValue) return int.MinValue;
             return (int)value;
+        }
+
+        public Dictionary<string, decimal> GetDefaultRewards()
+        {
+            return AchievementDefinitions.ToDictionary(d => d.Key, d => d.Reward);
+        }
+
+        public void ResetRewardsToDefaults()
+        {
+            try
+            {
+                using var db = new AceDbContext();
+                var defaults = GetDefaultRewards();
+                var achievements = db.Achievements.ToList();
+
+                foreach (var achievement in achievements)
+                {
+                    if (defaults.TryGetValue(achievement.Key, out var defaultReward))
+                    {
+                        achievement.Reward = defaultReward;
+                    }
+                }
+
+                db.SaveChanges();
+                _logger.Info("Achievement rewards reset to defaults");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Failed to reset achievement rewards", ex);
+            }
+        }
+
+        public void UpdateReward(string key, decimal reward)
+        {
+            try
+            {
+                using var db = new AceDbContext();
+                var achievement = db.Achievements.FirstOrDefault(a => a.Key == key);
+                if (achievement != null)
+                {
+                    achievement.Reward = reward;
+                    db.SaveChanges();
+                    _logger.Debug($"Achievement reward updated: {key} = €{reward:N0}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"Failed to update achievement reward for {key}", ex);
+            }
         }
 
         private record AchievementDefinition(

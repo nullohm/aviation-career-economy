@@ -115,7 +115,9 @@ namespace Ace.App.Services
             if (aircraft == null)
                 return (false, "Aircraft not found");
 
-            if (!aircraft.AssignedPilotId.HasValue)
+            var assignmentRepo = scope.ServiceProvider.GetRequiredService<IAircraftPilotAssignmentRepository>();
+            var assignedPilots = assignmentRepo.GetAssignmentsByAircraftId(aircraftId);
+            if (assignedPilots.Count == 0)
                 return (false, "Aircraft must have an assigned pilot");
 
             var existingRoute = routeRepo.GetRouteByAircraft(aircraftId);

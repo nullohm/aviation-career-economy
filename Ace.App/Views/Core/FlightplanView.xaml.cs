@@ -45,6 +45,8 @@ namespace Ace.App.Views.Core
         private readonly FlightPlanMapViewModel _mapViewModel;
         private readonly IFBORepository _fboRepository;
         private readonly IAircraftRepository _aircraftRepository;
+        private readonly ITypeRatingRepository _typeRatingRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
 
         public FlightplanView(
             ILoggingService logger,
@@ -56,7 +58,9 @@ namespace Ace.App.Views.Core
             SimConnectService simConnectService,
             FlightPlanMapViewModel mapViewModel,
             IFBORepository fboRepository,
-            IAircraftRepository aircraftRepository)
+            IAircraftRepository aircraftRepository,
+            ITypeRatingRepository typeRatingRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _airportDatabase = airportDatabase ?? throw new ArgumentNullException(nameof(airportDatabase));
@@ -68,6 +72,8 @@ namespace Ace.App.Views.Core
             _mapViewModel = mapViewModel ?? throw new ArgumentNullException(nameof(mapViewModel));
             _fboRepository = fboRepository ?? throw new ArgumentNullException(nameof(fboRepository));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
+            _typeRatingRepository = typeRatingRepository ?? throw new ArgumentNullException(nameof(typeRatingRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
 
             InitializeComponent();
             Loaded += FlightplanView_Loaded;
@@ -96,6 +102,7 @@ namespace Ace.App.Views.Core
             // Sync current ICAO values to map after everything is loaded
             SyncCurrentRouteToMap();
             UpdateRangeCircle();
+            ZoomToRangeCircleIfAvailable();
 
             // Initialize map controls
             ScaleControl.AttachToMap(FlightPlanMapControl.Map);
@@ -387,6 +394,20 @@ namespace Ace.App.Views.Core
 
                 foreach (var ac in aircraft)
                 {
+                    var assignment = _assignmentRepository.GetAssignmentsByAircraftId(ac.Id).FirstOrDefault();
+                    if (assignment != null)
+                    {
+                        var pilotRatings = _typeRatingRepository.GetTypeRatingsByPilotId(assignment.PilotId)
+                            .Select(tr => tr.AircraftType)
+                            .ToList();
+
+                        if (!TypeRatingMatchHelper.HasMatchingTypeRating(ac.Type, pilotRatings))
+                        {
+                            _logger.Debug($"FlightplanView: Skipping aircraft {ac.Registration} ({ac.Type}) - pilot {assignment.PilotId} has no matching type rating");
+                            continue;
+                        }
+                    }
+
                     _logger.Debug($"Adding aircraft to selection: {ac.Registration}");
                     _aircraft.Add(new AircraftSelectionViewModel(ac));
                 }
@@ -1035,6 +1056,17 @@ namespace Ace.App.Views.Core
             else
             {
                 _mapViewModel.UpdateRangeCircle(null);
+            }
+        }
+
+        private void ZoomToRangeCircleIfAvailable()
+        {
+            if (_mapViewModel == null) return;
+
+            var selectedAircraft = AircraftComboBox.SelectedItem as AircraftSelectionViewModel;
+            if (selectedAircraft != null && selectedAircraft.MaxRangeNM > 0)
+            {
+                _mapViewModel.ZoomToRangeCircle((int)selectedAircraft.MaxRangeNM);
             }
         }
 

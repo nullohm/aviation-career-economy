@@ -137,6 +137,9 @@ namespace Ace.App.Services
 
         public bool AllowAllAircraftForFlightPlan { get; set; } = false;
 
+        public bool EnforceCrewRequirement { get; set; } = false;
+        public bool EnableMultiCrewShifts { get; set; } = false;
+
         public decimal ROIPercentSmall { get; set; } = 15m;
         public decimal ROIPercentMedium { get; set; } = 15m;
         public decimal ROIPercentMediumLarge { get; set; } = 15m;
@@ -334,6 +337,8 @@ namespace Ace.App.Services
                         RoutesPerFBOPairLimit = settingsEntity.RoutesPerFBOPairLimit,
                         AchievementRewardMultiplier = settingsEntity.AchievementRewardMultiplier,
                         AllowAllAircraftForFlightPlan = settingsEntity.AllowAllAircraftForFlightPlan,
+                        EnforceCrewRequirement = settingsEntity.EnforceCrewRequirement,
+                        EnableMultiCrewShifts = settingsEntity.EnableMultiCrewShifts,
                         ROIPercentSmall = settingsEntity.ROIPercentSmall,
                         ROIPercentMedium = settingsEntity.ROIPercentMedium,
                         ROIPercentMediumLarge = settingsEntity.ROIPercentMediumLarge,
@@ -524,6 +529,8 @@ namespace Ace.App.Services
                 settingsEntity.RoutesPerFBOPairLimit = CurrentSettings.RoutesPerFBOPairLimit;
                 settingsEntity.AchievementRewardMultiplier = CurrentSettings.AchievementRewardMultiplier;
                 settingsEntity.AllowAllAircraftForFlightPlan = CurrentSettings.AllowAllAircraftForFlightPlan;
+                settingsEntity.EnforceCrewRequirement = CurrentSettings.EnforceCrewRequirement;
+                settingsEntity.EnableMultiCrewShifts = CurrentSettings.EnableMultiCrewShifts;
                 settingsEntity.ROIPercentSmall = CurrentSettings.ROIPercentSmall;
                 settingsEntity.ROIPercentMedium = CurrentSettings.ROIPercentMedium;
                 settingsEntity.ROIPercentMediumLarge = CurrentSettings.ROIPercentMediumLarge;
@@ -1225,6 +1232,17 @@ namespace Ace.App.Services
                     command.ExecuteNonQuery();
                     command.CommandText = "ALTER TABLE Settings ADD COLUMN CargoLoadFactorPercent REAL NOT NULL DEFAULT 100";
                     command.ExecuteNonQuery();
+                }
+
+                command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('Settings') WHERE name='EnforceCrewRequirement'";
+                if (Convert.ToInt32(command.ExecuteScalar()) == 0)
+                {
+                    _loggingService.Info("Adding multi-crew settings columns to Settings table");
+                    command.CommandText = "ALTER TABLE Settings ADD COLUMN EnforceCrewRequirement INTEGER NOT NULL DEFAULT 0";
+                    command.ExecuteNonQuery();
+                    command.CommandText = "ALTER TABLE Settings ADD COLUMN EnableMultiCrewShifts INTEGER NOT NULL DEFAULT 0";
+                    command.ExecuteNonQuery();
+                    _loggingService.Info("Multi-crew settings columns added successfully");
                 }
 
                 connection.Close();

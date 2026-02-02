@@ -19,6 +19,7 @@ namespace Ace.App.Views.Core
         private readonly IThemeService _themeService;
         private readonly ISoundService _soundService;
         private readonly IAirspaceService _airspaceService;
+        private readonly IAchievementService _achievementService;
         private bool _isInitializing = true;
 
         public SettingsView(
@@ -28,7 +29,8 @@ namespace Ace.App.Views.Core
             IDailyEarningsService dailyEarningsService,
             IThemeService themeService,
             ISoundService soundService,
-            IAirspaceService airspaceService)
+            IAirspaceService airspaceService,
+            IAchievementService achievementService)
         {
             _logger = logger ?? throw new System.ArgumentNullException(nameof(logger));
             _settingsService = settingsService ?? throw new System.ArgumentNullException(nameof(settingsService));
@@ -37,6 +39,7 @@ namespace Ace.App.Views.Core
             _themeService = themeService ?? throw new System.ArgumentNullException(nameof(themeService));
             _soundService = soundService ?? throw new System.ArgumentNullException(nameof(soundService));
             _airspaceService = airspaceService ?? throw new System.ArgumentNullException(nameof(airspaceService));
+            _achievementService = achievementService ?? throw new System.ArgumentNullException(nameof(achievementService));
 
             InitializeComponent();
             LoadSettings();
@@ -157,9 +160,12 @@ namespace Ace.App.Views.Core
             TxtRankSeniorCaptainBonus.Text = (settings.PilotRankSeniorCaptainBonus * 100).ToString("0");
             TxtRankChiefPilotBonus.Text = (settings.PilotRankChiefPilotBonus * 100).ToString("0");
 
-            TxtAchievementRewardMultiplier.Text = (settings.AchievementRewardMultiplier * 100).ToString("0");
+            LoadAchievementRewards();
 
             ChkAllowAllAircraftForFlightPlan.IsChecked = settings.AllowAllAircraftForFlightPlan;
+
+            ChkEnforceCrewRequirement.IsChecked = settings.EnforceCrewRequirement;
+            ChkEnableMultiCrewShifts.IsChecked = settings.EnableMultiCrewShifts;
 
             ChkSoundEnabled.IsChecked = _soundService.IsSoundEnabled;
             SliderVolume.Value = _soundService.Volume * 100;
@@ -264,7 +270,6 @@ namespace Ace.App.Views.Core
             TxtTypeRatingCostLarge.LostFocus += OnTypeRatingCostsChanged;
             TxtTypeRatingCostVeryLarge.LostFocus += OnTypeRatingCostsChanged;
 
-            TxtAchievementRewardMultiplier.LostFocus += OnAchievementSettingsChanged;
         }
 
         private void OnRateChanged(object sender, RoutedEventArgs e)
@@ -1049,20 +1054,36 @@ namespace Ace.App.Views.Core
             }
         }
 
-        private void OnAchievementSettingsChanged(object sender, RoutedEventArgs e)
+        private void LoadAchievementRewards()
         {
-            var settings = _settingsService.CurrentSettings;
+            var achievements = _achievementService.GetAllAchievements();
+            var view = System.Windows.Data.CollectionViewSource.GetDefaultView(achievements);
+            view.GroupDescriptions.Add(new System.Windows.Data.PropertyGroupDescription("Category"));
+            AchievementRewardsList.ItemsSource = view;
+        }
 
-            if (decimal.TryParse(TxtAchievementRewardMultiplier.Text, out decimal percent) && percent >= 0 && percent <= 1000)
+        private void AchievementReward_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (sender is not TextBox textBox || textBox.Tag is not string key)
+                return;
+
+            if (decimal.TryParse(textBox.Text, out decimal reward) && reward >= 0)
             {
-                settings.AchievementRewardMultiplier = percent / 100m;
-                _settingsService.Save();
-                _logger.Info($"SettingsView: Achievement reward updated to {percent}%");
+                _achievementService.UpdateReward(key, reward);
             }
             else
             {
-                TxtAchievementRewardMultiplier.Text = (settings.AchievementRewardMultiplier * 100).ToString("0");
+                var achievement = _achievementService.GetAchievement(key);
+                if (achievement != null)
+                    textBox.Text = (achievement.Reward ?? 0).ToString("0");
             }
+        }
+
+        private void BtnResetAchievementRewards_Click(object sender, RoutedEventArgs e)
+        {
+            _achievementService.ResetRewardsToDefaults();
+            LoadAchievementRewards();
+            _logger.Info("SettingsView: Achievement rewards reset to defaults");
         }
 
         private void OnTypeRatingCostsChanged(object sender, RoutedEventArgs e)
@@ -1135,6 +1156,26 @@ namespace Ace.App.Views.Core
             settings.AllowAllAircraftForFlightPlan = ChkAllowAllAircraftForFlightPlan.IsChecked ?? false;
             _settingsService.Save();
             _logger.Info($"SettingsView: AllowAllAircraftForFlightPlan set to {settings.AllowAllAircraftForFlightPlan}");
+        }
+
+        private void ChkEnforceCrewRequirement_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+
+            var settings = _settingsService.CurrentSettings;
+            settings.EnforceCrewRequirement = ChkEnforceCrewRequirement.IsChecked ?? false;
+            _settingsService.Save();
+            _logger.Info($"SettingsView: EnforceCrewRequirement set to {settings.EnforceCrewRequirement}");
+        }
+
+        private void ChkEnableMultiCrewShifts_Changed(object sender, RoutedEventArgs e)
+        {
+            if (_isInitializing) return;
+
+            var settings = _settingsService.CurrentSettings;
+            settings.EnableMultiCrewShifts = ChkEnableMultiCrewShifts.IsChecked ?? false;
+            _settingsService.Save();
+            _logger.Info($"SettingsView: EnableMultiCrewShifts set to {settings.EnableMultiCrewShifts}");
         }
 
         private void ChkSoundEnabled_Changed(object sender, RoutedEventArgs e)

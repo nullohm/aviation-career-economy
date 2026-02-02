@@ -30,6 +30,7 @@ namespace Ace.App.Views.Finance
         private readonly IAircraftRepository _aircraftRepository;
         private readonly ITransactionRepository _transactionRepository;
         private readonly IPilotRepository _pilotRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
 
         private PlotModel? _revenueExpenseChartModel;
         public PlotModel? RevenueExpenseChartModel
@@ -57,7 +58,8 @@ namespace Ace.App.Views.Finance
             IDailyEarningsRepository dailyEarningsRepository,
             IAircraftRepository aircraftRepository,
             ITransactionRepository transactionRepository,
-            IPilotRepository pilotRepository)
+            IPilotRepository pilotRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository)
         {
             _persistenceService = persistenceService ?? throw new ArgumentNullException(nameof(persistenceService));
             _financeService = financeService ?? throw new ArgumentNullException(nameof(financeService));
@@ -67,6 +69,7 @@ namespace Ace.App.Views.Finance
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
             _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
             _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
 
             InitializeComponent();
             DataContext = this;
@@ -869,7 +872,10 @@ namespace Ace.App.Views.Finance
                 return PilotRank.CalculateAdjustedSalary(rank, settings);
             });
             var totalHours = pilots.Sum(p => p.TotalFlightHours);
-            var assignedCount = aircraft.Count(a => a.AssignedPilotId != null);
+            var allAssignments = _assignmentRepository.GetAllAssignments();
+            var assignedPilotIds = allAssignments.Select(a => a.PilotId).ToHashSet();
+            var pilotToAircraftMap = allAssignments.ToDictionary(a => a.PilotId, a => a.AircraftId);
+            var assignedCount = allAssignments.Select(a => a.AircraftId).Distinct().Count();
 
             TxtPilotCount.Text = pilotCount.ToString();
             TxtPilotSalaries.Text = $"€{totalSalaries:N0}";
@@ -879,16 +885,19 @@ namespace Ace.App.Views.Finance
             var pilotStats = pilots.Select(p =>
             {
                 var rank = PilotRank.GetRank(p.TotalFlightHours, settings);
-                // Player pilot doesn't get salary
                 var adjustedSalary = p.IsPlayer ? 0m : PilotRank.CalculateAdjustedSalary(rank, settings);
+                var assignedAircraftId = pilotToAircraftMap.GetValueOrDefault(p.Id, 0);
+                var assignedAircraftReg = assignedAircraftId > 0
+                    ? aircraft.FirstOrDefault(a => a.Id == assignedAircraftId)?.Registration ?? "-"
+                    : "-";
                 return new PilotStatViewModel
                 {
                     Name = p.Name,
                     TotalFlightHours = p.TotalFlightHours,
                     SalaryPerMonth = adjustedSalary,
                     Rank = PilotRank.GetRankName(rank),
-                    AssignedAircraftReg = aircraft.FirstOrDefault(a => a.AssignedPilotId == p.Id)?.Registration ?? "-",
-                    StatusText = p.IsPlayer ? "Player" : (aircraft.Any(a => a.AssignedPilotId == p.Id) ? "Assigned" : "Available")
+                    AssignedAircraftReg = assignedAircraftReg,
+                    StatusText = p.IsPlayer ? "Player" : (assignedPilotIds.Contains(p.Id) ? "Assigned" : "Available")
                 };
             }).OrderBy(p => p.Name).ToList();
 

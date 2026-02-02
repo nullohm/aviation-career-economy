@@ -134,7 +134,13 @@ namespace Ace.App.Services
             try
             {
                 using var db = new AceDbContext();
-                RecentTransactions = db.Transactions.OrderByDescending(t => t.Id).Take(20).ToList();
+                RecentTransactions = db.Transactions
+                    .Where(t => !t.Description.StartsWith("Daily earnings:") &&
+                                !t.Description.StartsWith("Monthly summary:") &&
+                                !t.Description.StartsWith("Yearly summary:"))
+                    .OrderByDescending(t => t.Id)
+                    .Take(20)
+                    .ToList();
                 Balance = db.Transactions.Sum(t => (decimal?)t.Amount) ?? 0m;
 
                 _logger.Info($"Loaded {RecentTransactions.Count} transactions, Balance: €{Balance:N2}");

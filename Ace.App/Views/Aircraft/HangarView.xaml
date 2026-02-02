@@ -210,14 +210,24 @@
                                                                    Foreground="White"
                                                                    FontWeight="SemiBold"/>
                                                     </Border>
-                                                    <Border Background="{StaticResource SuccessBrush}"
+                                                    <Border Background="{Binding CrewStatusColor}"
                                                             CornerRadius="3"
                                                             Padding="6,2"
                                                             Margin="6,0,0,0"
-                                                            Visibility="{Binding HasAssignedPilot, Converter={StaticResource BoolToVisibilityConverter}}">
-                                                        <TextBlock Text="{Binding AssignedPilotName}"
-                                                                   FontSize="10"
-                                                                   Foreground="White"/>
+                                                            Visibility="{Binding HasAssignedPilot, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            ToolTip="{Binding AssignedPilotNames}">
+                                                        <TextBlock FontSize="10" Foreground="White">
+                                                            <Run Text="Crew "/>
+                                                            <Run Text="{Binding CrewStatusText, Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </Border>
+                                                    <Border Background="{Binding UtilizationColor}"
+                                                            CornerRadius="3"
+                                                            Padding="6,2"
+                                                            Margin="6,0,0,0"
+                                                            Visibility="{Binding ShowUtilization, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            ToolTip="Daily aircraft utilization based on assigned crew and flight hours">
+                                                        <TextBlock FontSize="10" Foreground="White" Text="{Binding UtilizationText}"/>
                                                     </Border>
                                                     <Border Background="{StaticResource AccentBrush}"
                                                             CornerRadius="3"
@@ -383,9 +393,10 @@
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
 
-                                        <!-- Row 0: Size + Location -->
+                                        <!-- Row 0: Size + Crew -->
                                         <Border Grid.Row="0" Grid.Column="0" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,4,4">
                                             <Grid>
                                                 <TextBlock Text="Size" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
@@ -395,8 +406,8 @@
 
                                         <Border Grid.Row="0" Grid.Column="1" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="4,0,0,4">
                                             <Grid>
-                                                <TextBlock Text="Location" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
-                                                <TextBlock x:Name="TxtDetailLocation" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                                <TextBlock Text="Crew" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailCrew" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                             </Grid>
                                         </Border>
 
@@ -460,16 +471,24 @@
                                             </Grid>
                                         </Border>
 
-                                        <!-- Row 5: Service Ceiling -->
+                                        <!-- Row 5: Location -->
                                         <Border Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
+                                            <Grid>
+                                                <TextBlock Text="Location" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
+                                                <TextBlock x:Name="TxtDetailLocation" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <!-- Row 6: Service Ceiling -->
+                                        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
                                             <Grid>
                                                 <TextBlock Text="Service Ceiling" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
                                                 <TextBlock x:Name="TxtDetailServiceCeiling" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                                             </Grid>
                                         </Border>
 
-                                        <!-- Row 6: Operating Cost -->
-                                        <Border Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6">
+                                        <!-- Row 7: Operating Cost -->
+                                        <Border Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6">
                                             <Grid>
                                                 <TextBlock Text="Hourly Operating Cost" FontSize="10" Foreground="{StaticResource SubtleForegroundBrush}"/>
                                                 <TextBlock x:Name="TxtDetailOperatingCost" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" Foreground="{StaticResource AccentBrush}"/>
@@ -556,13 +575,45 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Assigned Info (Pilot) -->
-                            <Border x:Name="AssignedInfoSection" Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Visibility="Collapsed">
+                            <!-- Crew Assignment -->
+                            <Border x:Name="CrewSection" Padding="16,12" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                                 <StackPanel>
-                                    <TextBlock Text="Assigned Pilot" FontWeight="SemiBold" FontSize="13" Margin="0,0,0,8"/>
-                                    <StackPanel x:Name="PilotAssignmentRow" Orientation="Horizontal" Visibility="Collapsed">
-                                        <TextBlock x:Name="TxtDetailPilot" FontSize="12" FontWeight="SemiBold"/>
-                                    </StackPanel>
+                                    <Grid Margin="0,0,0,8">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Crew" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center"/>
+                                            <Border x:Name="CrewStatusBadge" CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock x:Name="TxtCrewStatus" FontSize="11" Foreground="White" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <Button x:Name="BtnAssignPilot" Content="Assign Pilot" Click="AssignPilotButton_Click"
+                                                HorizontalAlignment="Right" Height="26" Padding="12,0"
+                                                Style="{StaticResource PrimaryButtonStyle}" FontSize="11"/>
+                                    </Grid>
+                                    <ItemsControl x:Name="CrewPilotList">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{StaticResource BgSecondary}" CornerRadius="4" Padding="8,6" Margin="0,0,0,4">
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                        <Button Content="Remove" HorizontalAlignment="Right"
+                                                                Tag="{Binding Id}" Click="RemovePilotButton_Click"
+                                                                Height="22" Padding="8,0" Style="{StaticResource SecondaryButtonStyle}" FontSize="10"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Grid x:Name="PilotSelectionGrid" Margin="0,4,0,0" Visibility="Collapsed">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox x:Name="CmbPilotSelection" Grid.Column="0" Height="28" FontSize="11"
+                                                  DisplayMemberPath="DisplayName"/>
+                                        <Button x:Name="BtnConfirmAssignPilot" Grid.Column="2" Content="Add" Click="ConfirmAssignPilotButton_Click"
+                                                Height="28" Padding="12,0" Style="{StaticResource PrimaryButtonStyle}" FontSize="11"/>
+                                    </Grid>
                                 </StackPanel>
                             </Border>
 

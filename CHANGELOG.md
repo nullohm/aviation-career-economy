@@ -1,5 +1,24 @@
 # Changelog
 
+## [Build 3] - 2026-02-02
+
+### Added
+- Multi-crew system: aircraft can have multiple pilots assigned via junction table (AircraftPilotAssignments)
+- Crew requirement setting: when enabled, aircraft need minimum crew count to generate passive income
+- Multi-crew shift operations setting: multiple crews simulate shift operations for increased daily flight hours
+- Crew section in Hangar detail panel with assign/remove pilot functionality and crew status badge
+- Crew status badge in aircraft list showing assignment status with color coding (green/orange)
+- Aircraft utilization percentage badge showing daily flight coverage (green/blue/orange)
+- 10 new pilots with diverse backgrounds, type ratings, and portrait images
+- Extension-agnostic pilot image loading (auto-detects .png/.jpg/.bmp regardless of database entry)
+
+### Changed
+- Pilot assignment migrated from 1:1 AssignedPilotId to many-to-one junction table
+- Daily earnings calculation updated to support crew requirements and shift operations
+- All views updated to use new junction-based pilot assignment system
+
+---
+
 ## [Build 2] - 2026-01-31
 
 ### Added

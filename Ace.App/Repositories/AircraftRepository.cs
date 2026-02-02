@@ -138,8 +138,12 @@ namespace Ace.App.Repositories
             try
             {
                 using var db = new AceDbContext();
+                var assignedAircraftIds = db.AircraftPilotAssignments
+                    .Select(a => a.AircraftId)
+                    .Distinct()
+                    .ToList();
                 return db.Aircraft
-                    .Where(a => fboIds.Contains(a.AssignedFBOId ?? 0) && a.AssignedPilotId != null)
+                    .Where(a => fboIds.Contains(a.AssignedFBOId ?? 0) && assignedAircraftIds.Contains(a.Id))
                     .ToList();
             }
             catch (Exception ex)
@@ -182,8 +186,12 @@ namespace Ace.App.Repositories
             try
             {
                 using var db = new AceDbContext();
+                var assignedAircraftIds = db.AircraftPilotAssignments
+                    .Select(a => a.AircraftId)
+                    .Distinct()
+                    .ToList();
                 return db.Aircraft
-                    .Where(a => a.AssignedPilotId == null && a.Status == AircraftStatus.Stationed)
+                    .Where(a => !assignedAircraftIds.Contains(a.Id) && a.Status == AircraftStatus.Stationed)
                     .ToList();
             }
             catch (Exception ex)
@@ -198,7 +206,9 @@ namespace Ace.App.Repositories
             try
             {
                 using var db = new AceDbContext();
-                return db.Aircraft.FirstOrDefault(a => a.AssignedPilotId == pilotId);
+                var assignment = db.AircraftPilotAssignments.FirstOrDefault(a => a.PilotId == pilotId);
+                if (assignment == null) return null;
+                return db.Aircraft.FirstOrDefault(a => a.Id == assignment.AircraftId);
             }
             catch (Exception ex)
             {

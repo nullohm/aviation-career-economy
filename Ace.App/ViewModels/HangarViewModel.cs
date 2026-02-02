@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Ace.App.Interfaces;
@@ -15,6 +16,9 @@ namespace Ace.App.ViewModels
         private readonly IPilotRepository _pilotRepository;
         private readonly IFBORepository _fboRepository;
         private readonly IScheduledRouteRepository _routeRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
+        private readonly IAircraftCatalogRepository _catalogRepository;
+        private readonly ISettingsService _settingsService;
 
         private ObservableCollection<AircraftViewModel> _aircraft = new();
         private ObservableCollection<AircraftViewModel> _filteredAircraft = new();
@@ -72,7 +76,10 @@ namespace Ace.App.ViewModels
             IAircraftRepository aircraftRepository,
             IPilotRepository pilotRepository,
             IFBORepository fboRepository,
-            IScheduledRouteRepository routeRepository)
+            IScheduledRouteRepository routeRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository,
+            IAircraftCatalogRepository catalogRepository,
+            ISettingsService settingsService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _persistenceService = persistenceService ?? throw new ArgumentNullException(nameof(persistenceService));
@@ -82,6 +89,9 @@ namespace Ace.App.ViewModels
             _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
             _fboRepository = fboRepository ?? throw new ArgumentNullException(nameof(fboRepository));
             _routeRepository = routeRepository ?? throw new ArgumentNullException(nameof(routeRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
+            _catalogRepository = catalogRepository ?? throw new ArgumentNullException(nameof(catalogRepository));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
             _persistenceService.FlightRecordsChanged += OnFlightRecordsChanged;
         }
@@ -100,8 +110,13 @@ namespace Ace.App.ViewModels
                 var aircraft = _aircraftRepository.GetAllAircraft();
                 var pilots = _pilotRepository.GetEmployedPilots();
                 var fbos = _fboRepository.GetAllFBOs();
+                var allAssignments = _assignmentRepository.GetAllAssignments();
+                var catalogEntries = _catalogRepository.GetAllAircraft();
                 var scheduledRoutes = _routeRepository.GetActiveRoutes()
                     .Where(r => r.AssignedAircraftId.HasValue).ToList();
+                var settings = _settingsService.CurrentSettings;
+                var hoursPerDay = (double)settings.PilotFlightHoursPerDay;
+                var multiCrewShifts = settings.EnableMultiCrewShifts;
                 _logger.Database("Aircraft query completed", aircraft.Count);
 
                 Aircraft.Clear();
@@ -109,9 +124,16 @@ namespace Ace.App.ViewModels
                 foreach (var ac in aircraft)
                 {
                     _logger.Debug($"Adding aircraft to UI: {ac.Registration}");
-                    var assignedPilot = ac.AssignedPilotId.HasValue
-                        ? pilots.FirstOrDefault(p => p.Id == ac.AssignedPilotId.Value)
-                        : null;
+                    var aircraftAssignments = allAssignments.Where(a => a.AircraftId == ac.Id).ToList();
+                    var assignedPilots = aircraftAssignments
+                        .Select(a => pilots.FirstOrDefault(p => p.Id == a.PilotId))
+                        .Where(p => p != null)
+                        .ToList()!;
+
+                    var catalogEntry = catalogEntries.FirstOrDefault(c =>
+                        c.Title == ac.Variant || c.Type == ac.Variant);
+                    var requiredCrew = catalogEntry?.CrewCount ?? 1;
+
                     var assignedFBO = ac.AssignedFBOId.HasValue
                         ? fbos.FirstOrDefault(f => f.Id == ac.AssignedFBOId.Value)
                         : null;
@@ -128,7 +150,7 @@ namespace Ace.App.ViewModels
                         }
                     }
 
-                    Aircraft.Add(new AircraftViewModel(ac, _maintenanceService, assignedPilot, assignedFBO, assignedRouteDisplay));
+                    Aircraft.Add(new AircraftViewModel(ac, _maintenanceService, assignedPilots!, assignedFBO, assignedRouteDisplay, requiredCrew, hoursPerDay, multiCrewShifts));
                 }
 
                 ApplyFilter();

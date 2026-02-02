@@ -544,6 +544,26 @@
                     <TextBox Name="TxtPilotFlightHoursPerDay" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
                 </StackPanel>
 
+                <TextBlock Style="{StaticResource SubHeader}" Text="Crew Requirements"/>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="When enabled, aircraft require the minimum crew count (from aircraft catalog) to be assigned before they generate passive income. Example: A Boeing 737 with Crew=2 needs at least 2 pilots assigned to earn money.">
+                    <CheckBox Name="ChkEnforceCrewRequirement"
+                              Content="Enforce crew requirement"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkEnforceCrewRequirement_Changed"
+                              Unchecked="ChkEnforceCrewRequirement_Changed"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="4"
+                            ToolTip="When enabled, assigning multiple crews to an aircraft simulates shift operations. Example: 4 pilots on a Crew=2 aircraft with 8h/day = 2 shifts = 16h/day of flight time. Max 24h/day.">
+                    <CheckBox Name="ChkEnableMultiCrewShifts"
+                              Content="Enable multi-crew shift operations"
+                              Foreground="{DynamicResource ForegroundBrush}"
+                              VerticalAlignment="Center"
+                              Checked="ChkEnableMultiCrewShifts_Changed"
+                              Unchecked="ChkEnableMultiCrewShifts_Changed"/>
+                </StackPanel>
+
                 <TextBlock Style="{StaticResource SubHeader}" Text="Rank System - Hour Thresholds"
                            ToolTip="Flight hour requirements for each pilot rank. Pilots automatically advance when they reach the threshold. Higher ranks earn salary bonuses."/>
                 <StackPanel Orientation="Horizontal" Margin="4"
@@ -724,11 +744,62 @@
                 <TextBlock Style="{StaticResource CategoryHeader}" Text="Achievements"/>
             </Expander.Header>
             <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="4"
-                            ToolTip="Achievement reward percentage. 100 = default, 200 = double rewards, 50 = half rewards, 0 = no rewards.">
-                    <TextBlock Width="220" Foreground="{DynamicResource SubtleForegroundBrush}" Text="Reward Multiplier (%):" VerticalAlignment="Center"/>
-                    <TextBox Name="TxtAchievementRewardMultiplier" Width="80" Height="28" VerticalContentAlignment="Center" Padding="4"/>
-                </StackPanel>
+                <Button Name="BtnResetAchievementRewards" Content="Reset to Defaults"
+                        Margin="4,4,4,8" Padding="8,4" HorizontalAlignment="Left"
+                        Click="BtnResetAchievementRewards_Click"/>
+                <ItemsControl Name="AchievementRewardsList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="4,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="28"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="90"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Title}" Foreground="{DynamicResource ForegroundBrush}"
+                                           VerticalAlignment="Center" FontSize="12"/>
+                                <Border Grid.Column="2" CornerRadius="4" Padding="6,2" Margin="4,0">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#3a3a3a"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Tier}" Value="Bronze">
+                                                    <Setter Property="Background" Value="#8B4513"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Tier}" Value="Silver">
+                                                    <Setter Property="Background" Value="#6a6a6a"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Tier}" Value="Gold">
+                                                    <Setter Property="Background" Value="#B8860B"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Tier}" Value="Platinum">
+                                                    <Setter Property="Background" Value="#4a7c7c"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="{Binding Tier}" FontSize="9" Foreground="White"/>
+                                </Border>
+                                <TextBox Grid.Column="3" Width="80" Height="24" VerticalContentAlignment="Center"
+                                         Padding="4,0" FontSize="12" HorizontalAlignment="Right"
+                                         Text="{Binding Reward, StringFormat={}{0:0}}" Tag="{Binding Key}"
+                                         LostFocus="AchievementReward_LostFocus"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.GroupStyle>
+                        <GroupStyle>
+                            <GroupStyle.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="4,8,4,4"/>
+                                </DataTemplate>
+                            </GroupStyle.HeaderTemplate>
+                        </GroupStyle>
+                    </ItemsControl.GroupStyle>
+                </ItemsControl>
             </StackPanel>
         </Expander>
 

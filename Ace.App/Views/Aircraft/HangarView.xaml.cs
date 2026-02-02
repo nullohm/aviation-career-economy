@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -9,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Ace.App.Converters;
+using Ace.App.Helpers;
 using Ace.App.Infrastructure;
 using Ace.App.Interfaces;
 using Ace.App.Models;
@@ -26,6 +28,11 @@ namespace Ace.App.Views.Aircraft
         private readonly IAircraftImageService _imageService;
         private readonly IAircraftRepository _aircraftRepository;
         private readonly IFBORepository _fboRepository;
+        private readonly IAircraftCatalogRepository _catalogRepository;
+        private readonly IPilotRepository _pilotRepository;
+        private readonly ITypeRatingRepository _typeRatingRepository;
+        private readonly IAircraftPilotAssignmentRepository _assignmentRepository;
+        private readonly ISettingsService _settingsService;
         private AircraftViewModel? _selectedAircraft;
         private Models.Aircraft? _selectedAircraftModel;
         private ObservableCollection<FBOSelectionItem> _availableFBOs = new();
@@ -37,7 +44,12 @@ namespace Ace.App.Views.Aircraft
             IFinanceService financeService,
             IAircraftImageService imageService,
             IAircraftRepository aircraftRepository,
-            IFBORepository fboRepository)
+            IFBORepository fboRepository,
+            IAircraftCatalogRepository catalogRepository,
+            IPilotRepository pilotRepository,
+            ITypeRatingRepository typeRatingRepository,
+            IAircraftPilotAssignmentRepository assignmentRepository,
+            ISettingsService settingsService)
         {
             InitializeComponent();
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
@@ -46,6 +58,11 @@ namespace Ace.App.Views.Aircraft
             _imageService = imageService ?? throw new ArgumentNullException(nameof(imageService));
             _aircraftRepository = aircraftRepository ?? throw new ArgumentNullException(nameof(aircraftRepository));
             _fboRepository = fboRepository ?? throw new ArgumentNullException(nameof(fboRepository));
+            _catalogRepository = catalogRepository ?? throw new ArgumentNullException(nameof(catalogRepository));
+            _pilotRepository = pilotRepository ?? throw new ArgumentNullException(nameof(pilotRepository));
+            _typeRatingRepository = typeRatingRepository ?? throw new ArgumentNullException(nameof(typeRatingRepository));
+            _assignmentRepository = assignmentRepository ?? throw new ArgumentNullException(nameof(assignmentRepository));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
             DataContext = _viewModel;
 
             Loaded += HangarView_Loaded;
@@ -122,20 +139,7 @@ namespace Ace.App.Views.Aircraft
             TxtDetailPassengers.Text = _selectedAircraft.PassengersText;
 
             LoadAircraftDetails();
-
-            var hasAssignedPilot = _selectedAircraft.HasAssignedPilot;
-            AssignedInfoSection.Visibility = hasAssignedPilot ? Visibility.Visible : Visibility.Collapsed;
-
-            if (hasAssignedPilot)
-            {
-                PilotAssignmentRow.Visibility = Visibility.Visible;
-                TxtDetailPilot.Text = _selectedAircraft.AssignedPilotName;
-            }
-            else
-            {
-                PilotAssignmentRow.Visibility = Visibility.Collapsed;
-            }
-
+            UpdateCrewSection();
             UpdateAircraftIcon();
         }
 
@@ -148,6 +152,9 @@ namespace Ace.App.Views.Aircraft
                 _selectedAircraftModel = _aircraftRepository.GetAircraftById(_selectedAircraft.Id);
 
                 if (_selectedAircraftModel == null) return;
+
+                var catalogEntry = _catalogRepository.GetAircraftByTitle(_selectedAircraftModel.Variant);
+                TxtDetailCrew.Text = catalogEntry != null && catalogEntry.CrewCount > 0 ? $"{catalogEntry.CrewCount}" : "—";
 
                 TxtDetailCargo.Text = $"{_selectedAircraftModel.MaxCargoKg:F0} kg";
                 TxtDetailSpeed.Text = $"{_selectedAircraftModel.CruiseSpeedKts:F0} kts";
@@ -573,6 +580,101 @@ namespace Ace.App.Views.Aircraft
             }
         }
 
+        private void UpdateCrewSection()
+        {
+            if (_selectedAircraft == null) return;
+
+            TxtCrewStatus.Text = _selectedAircraft.CrewStatusText;
+            CrewStatusBadge.Background = _selectedAircraft.CrewStatusColor;
+
+            CrewPilotList.ItemsSource = _selectedAircraft.AssignedPilots
+                .Select(p => new { p.Id, p.Name })
+                .ToList();
+
+            PilotSelectionGrid.Visibility = Visibility.Collapsed;
+        }
+
+        private void AssignPilotButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedAircraft == null || _selectedAircraftModel == null) return;
+
+            try
+            {
+                var employedPilots = _pilotRepository.GetEmployedPilots();
+
+                var availablePilots = new List<PilotSelectionItem>();
+                foreach (var pilot in employedPilots)
+                {
+                    if (_assignmentRepository.IsPilotAssigned(pilot.Id))
+                        continue;
+
+                    var typeRatings = _typeRatingRepository.GetTypeRatingsByPilotId(pilot.Id);
+                    var ratingStrings = typeRatings.Select(tr => tr.AircraftType).ToList();
+                    if (!TypeRatingMatchHelper.HasMatchingTypeRating(_selectedAircraftModel.Type, ratingStrings))
+                        continue;
+
+                    availablePilots.Add(new PilotSelectionItem(pilot.Id, pilot.Name));
+                }
+
+                if (availablePilots.Count == 0)
+                {
+                    InfoDialog.Show("No Pilots Available",
+                        "No available pilots with matching type rating found.",
+                        Window.GetWindow(this));
+                    return;
+                }
+
+                CmbPilotSelection.ItemsSource = availablePilots;
+                CmbPilotSelection.SelectedIndex = -1;
+                PilotSelectionGrid.Visibility = Visibility.Visible;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"HangarView: Error loading available pilots: {ex.Message}");
+                InfoDialog.Show("Error", $"Failed to load available pilots: {ex.Message}", Window.GetWindow(this));
+            }
+        }
+
+        private void ConfirmAssignPilotButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedAircraft == null || CmbPilotSelection.SelectedItem is not PilotSelectionItem selectedPilot) return;
+
+            try
+            {
+                _assignmentRepository.AssignPilot(_selectedAircraft.Id, selectedPilot.Id);
+                _logger.Info($"HangarView: Assigned pilot {selectedPilot.DisplayName} to aircraft {_selectedAircraft.Registration}");
+
+                _viewModel.LoadAircraft();
+                UpdateStats();
+                RefreshSelectedAircraft();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"HangarView: Error assigning pilot: {ex.Message}");
+                InfoDialog.Show("Error", $"Failed to assign pilot: {ex.Message}", Window.GetWindow(this));
+            }
+        }
+
+        private void RemovePilotButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button || button.Tag is not int pilotId) return;
+
+            try
+            {
+                _assignmentRepository.UnassignPilot(pilotId);
+                _logger.Info($"HangarView: Unassigned pilot {pilotId} from aircraft {_selectedAircraft?.Registration}");
+
+                _viewModel.LoadAircraft();
+                UpdateStats();
+                RefreshSelectedAircraft();
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"HangarView: Error removing pilot: {ex.Message}");
+                InfoDialog.Show("Error", $"Failed to remove pilot: {ex.Message}", Window.GetWindow(this));
+            }
+        }
+
         private void RefreshSelectedAircraft()
         {
             if (_selectedAircraft == null) return;
@@ -588,6 +690,18 @@ namespace Ace.App.Views.Aircraft
                 HideDetails();
                 _selectedAircraft = null;
             }
+        }
+    }
+
+    public class PilotSelectionItem
+    {
+        public int Id { get; }
+        public string DisplayName { get; }
+
+        public PilotSelectionItem(int id, string name)
+        {
+            Id = id;
+            DisplayName = name;
         }
     }
 }
